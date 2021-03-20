@@ -1,23 +1,108 @@
-# Compiled class file
-*.class
+HELP.md
+target/
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
 
-# Log file
-*.log
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
 
-# BlueJ files
-*.ctxt
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
 
-# Mobile Tools for Java (J2ME)
-.mtj.tmp/
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
 
-# Package Files #
+### VS Code ###
+.vscode/
+
+### Spring Boot ###
+*#
+*.iml
+*.ipr
+*.iws
 *.jar
-*.war
-*.nar
-*.ear
-*.zip
-*.tar.gz
-*.rar
+*.sw?
+*~
+.#*
+.*.md.html
+.DS_Store
+.attach_pid*
+.classpath
+.factorypath
+.gradle
+.idea
+.metadata
+.project
+.recommenders
+.settings
+.springBeans
+.vscode
+/code
+MANIFEST.MF
+_site/
+activemq-data
+bin
+build
+!/**/src/**/bin
+!/**/src/**/build
+build.log
+dependency-reduced-pom.xml
+dump.rdb
+interpolated*.xml
+lib/
+manifest.yml
+out
+overridedb.*
+target
+transaction-logs
+.flattened-pom.xml
+secrets.yml
+.gradletasknamecache
+.sts4-cache
 
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
-hs_err_pid*
+### React ###
+frontend/Anket0roo-App/.DS_STORE
+frontend/Anket0roo-App/node_modules
+frontend/Anket0roo-App/scripts/flow/*/.flowconfig
+frontend/Anket0roo-App/.flowconfig
+frontend/Anket0roo-App/*~
+frontend/Anket0roo-App/*.pyc
+frontend/Anket0roo-App/.grunt
+frontend/Anket0roo-App/_SpecRunner.html
+frontend/Anket0roo-App/__benchmarks__
+frontend/Anket0roo-App/build/
+frontend/Anket0roo-App/remote-repo/
+frontend/Anket0roo-App/coverage/
+frontend/Anket0roo-App/.module-cache
+frontend/Anket0roo-App/fixtures/dom/public/react-dom.js
+frontend/Anket0roo-App/fixtures/dom/public/react.js
+frontend/Anket0roo-App/test/the-files-to-test.generated.js
+frontend/Anket0roo-App/*.log*
+frontend/Anket0roo-App/chrome-user-data
+frontend/Anket0roo-App/*.sublime-project
+frontend/Anket0roo-App/*.sublime-workspace
+frontend/Anket0roo-App/.idea
+frontend/Anket0roo-App/*.iml
+frontend/Anket0roo-App/.vscode
+frontend/Anket0roo-App/*.swp
+frontend/Anket0roo-App/*.swo
+
+## Secrets ##
+server/Anket0roo/src/main/resources/application.properties
