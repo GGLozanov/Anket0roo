@@ -1,4 +1,4 @@
-package com.lozanov.TicketMachine.request
+package com.lozanov.anket0roo.request
 
 import java.io.Serializable
 

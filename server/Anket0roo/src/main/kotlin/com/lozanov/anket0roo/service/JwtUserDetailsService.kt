@@ -1,6 +1,6 @@
-package com.lozanov.TicketMachine.service
+package com.lozanov.anket0roo.service
 
-import com.lozanov.TicketMachine.RetryApplication
+import com.lozanov.anket0roo.repository.UserRepository
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.core.userdetails.User
 import org.springframework.security.core.userdetails.UserDetails
@@ -10,21 +10,11 @@ import org.springframework.stereotype.Service
 import java.util.*
 
 @Service
-class JwtUserDetailsService : UserDetailsService {
-
-    @Autowired
-    private var hardcodedUsers: RetryApplication.UserBean? = null
+class JwtUserDetailsService(private val userRepository: UserRepository) : UserDetailsService {
 
     @Throws(UsernameNotFoundException::class)
-    override fun loadUserByUsername(username: String): UserDetails {
-        // compare db users and give out granted authority here
-        println("Attempting to find user")
-        println("User attempted to be found: ${hardcodedUsers!!.users.find {
-            it.username == username
-        }}")
-
-        return hardcodedUsers!!.users.find {
-            it.username == username
-        } ?: throw UsernameNotFoundException("User not found with username: " + username);
+    override fun loadUserByUsername(username: String): UserDetails = userRepository.findByUsername(username).run {
+        return if(this != null) User(username, password, listOf()) else
+            throw UsernameNotFoundException("User with username '$username' not found!")
     }
 }

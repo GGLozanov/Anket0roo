@@ -3,6 +3,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
 	id("org.springframework.boot") version "2.3.5.RELEASE"
 	id("io.spring.dependency-management") version "1.0.10.RELEASE"
+	id("org.jetbrains.kotlin.plugin.jpa") version "1.5.0-M1"
 	kotlin("jvm") version "1.4.21"
 	kotlin("plugin.spring") version "1.3.72"
 	kotlin("plugin.serialization") version "1.4.21"
@@ -25,6 +26,7 @@ dependencies {
 	implementation("javax.persistence:javax.persistence-api:2.2")
 	implementation("com.h2database:h2")
 	runtimeOnly("mysql:mysql-connector-java")
+	implementation("javax.validation:validation-api:2.0.1.Final")
 	implementation("io.projectreactor.kotlin:reactor-kotlin-extensions")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 	implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")

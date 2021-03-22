@@ -1,10 +1,11 @@
-package com.lozanov.TicketMachine.config
+package com.lozanov.anket0roo.config
 
-import com.lozanov.TicketMachine.entrypoint.JwtAuthenticationEntryPoint
-import com.lozanov.TicketMachine.filter.JwtRequestFilter
+import com.lozanov.anket0roo.entrypoint.JwtAuthenticationEntryPoint
+import com.lozanov.anket0roo.filter.JwtRequestFilter
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.http.HttpMethod
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity
@@ -57,9 +58,8 @@ class WebSecurityConfig : WebSecurityConfigurerAdapter() {
     override fun configure(httpSecurity: HttpSecurity) {
         // We don't need CSRF for this example
         httpSecurity.csrf().disable() // dont authenticate this particular request
-                .authorizeRequests().antMatchers("/authenticate", "/services").permitAll()
-                .antMatchers("/desk/**").hasAuthority("desk")
-                .antMatchers("/enroll").hasAuthority("enroll")
+                .authorizeRequests().antMatchers("/authenticate").permitAll()
+                .antMatchers(HttpMethod.POST,"/user").permitAll()
                 .anyRequest() // all other requests need to be authenticated
                 .authenticated().and().exceptionHandling() // make sure we use stateless session; session won't be used to store user's state.
         .authenticationEntryPoint(jwtAuthenticationEntryPoint).and().sessionManagement()

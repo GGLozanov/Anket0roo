@@ -1,4 +1,4 @@
-package com.lozanov.TicketMachine.entrypoint
+package com.lozanov.anket0roo.entrypoint
 
 import org.springframework.security.core.AuthenticationException
 import org.springframework.security.web.AuthenticationEntryPoint

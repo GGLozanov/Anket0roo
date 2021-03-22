@@ -1,9 +1,9 @@
 package com.lozanov.anket0roo.repository
 
-import com.lozanov.anket0roo.model.Questionnaire
+import com.lozanov.anket0roo.model.QuestionnaireQuestion
 import org.springframework.data.repository.CrudRepository
 import org.springframework.stereotype.Repository
 
 @Repository
-interface QuestionnaireRepository : CrudRepository<Questionnaire, Int> {
+interface QuestionnaireQuestionRespository : CrudRepository<QuestionnaireQuestion, Int> {
 }

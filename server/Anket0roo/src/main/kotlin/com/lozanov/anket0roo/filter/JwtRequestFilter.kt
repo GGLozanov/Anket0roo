@@ -1,11 +1,11 @@
-package com.lozanov.TicketMachine.filter
+package com.lozanov.anket0roo.filter
 
-import com.lozanov.TicketMachine.service.JwtUserDetailsService
-import com.lozanov.TicketMachine.util.JwtTokenUtil
+import com.lozanov.anket0roo.service.JwtUserDetailsService
+import com.lozanov.anket0roo.util.JwtTokenUtil
 import io.jsonwebtoken.ExpiredJwtException
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource
 import org.springframework.stereotype.Component
 import org.springframework.web.filter.OncePerRequestFilter
@@ -13,16 +13,36 @@ import java.io.IOException
 import javax.servlet.FilterChain
 import javax.servlet.ServletException
 import javax.servlet.http.HttpServletRequest
+import javax.servlet.http.HttpServletRequestWrapper
 import javax.servlet.http.HttpServletResponse
 
 
 @Component
-class JwtRequestFilter : OncePerRequestFilter() {
-    @Autowired
-    private val jwtUserDetailsService: JwtUserDetailsService? = null
+class JwtRequestFilter(
+    private val jwtUserDetailsService: JwtUserDetailsService,
+    private val jwtTokenUtil: JwtTokenUtil,
+    private val passwordEncoder: BCryptPasswordEncoder
+) : OncePerRequestFilter() {
 
-    @Autowired
-    private val jwtTokenUtil: JwtTokenUtil? = null
+    inner class UserCreateHttpServletRequest(req: HttpServletRequest) : HttpServletRequestWrapper(req) {
+        override fun getParameter(name: String?): String {
+            var res = super.getParameter(name)
+            if("password" == name) {
+                passwordEncoder.encode(res)
+            }
+            return res
+        }
+
+        override fun getParameterValues(name: String?): Array<String> {
+            val values = super.getParameterValues(name)
+            if ("password" == name) {
+                for (index in values.indices) {
+                    values[index] = passwordEncoder.encode(values[index])
+                }
+            }
+            return values
+        }
+    }
 
     @Throws(ServletException::class, IOException::class)
     override fun doFilterInternal(request: HttpServletRequest, response: HttpServletResponse, chain: FilterChain) {
@@ -32,11 +52,17 @@ class JwtRequestFilter : OncePerRequestFilter() {
         // JWT Token is in the form "Bearer token". Remove Bearer word and get
         // only the Token
 
-        if(request.requestURL.contains("/authenticate") || request.requestURL.contains("/services")) {
+        if(request.requestURL.contains("/authenticate")) {
             chain.doFilter(request, response)
             println("Resuming for endpoint without needed token")
             return
         } // guard clause against endpoints with no need for token
+
+        if(request.requestURL.contains("/user") && request.method == "POST") {
+            chain.doFilter(UserCreateHttpServletRequest(request), response)
+            println("Resuming for endpoint without needed token")
+            return
+        }
 
         if (requestTokenHeader != null && requestTokenHeader.startsWith("Bearer ")) {
             jwtToken = requestTokenHeader.substring(7)
@@ -53,11 +79,11 @@ class JwtRequestFilter : OncePerRequestFilter() {
 
         // Once we get the token validate it.
         if (username != null && SecurityContextHolder.getContext().authentication == null) {
-            val userDetails = jwtUserDetailsService!!.loadUserByUsername(username)
+            val userDetails = jwtUserDetailsService.loadUserByUsername(username)
 
             // if token is valid configure Spring Security to manually set
             // authentication
-            if (jwtTokenUtil?.validateToken(jwtToken, userDetails) == true) {
+            if (jwtTokenUtil.validateToken(jwtToken, userDetails)) {
                 val usernamePasswordAuthenticationToken = UsernamePasswordAuthenticationToken(
                         userDetails, null, userDetails.authorities)
                 usernamePasswordAuthenticationToken.details = WebAuthenticationDetailsSource().buildDetails(request)
