@@ -22,5 +22,8 @@ data class Questionnaire(
         cascade = [CascadeType.ALL],
         orphanRemoval = true
     )
-    val questionnaireQuestions: List<QuestionnaireQuestion>
+    val questionnaireQuestions: List<QuestionnaireQuestion>,
+
+    @Column(name = "author_id")
+    val authorId: Int
 ): java.io.Serializable

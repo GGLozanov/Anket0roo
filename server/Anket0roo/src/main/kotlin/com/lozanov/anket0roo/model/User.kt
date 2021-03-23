@@ -35,5 +35,6 @@ data class User(
         orphanRemoval = true,
         fetch = FetchType.LAZY,
     )
+    @JoinColumn(name = "author_id", referencedColumnName = "id")
     val questionnaires: List<Questionnaire> = listOf()
 ): java.io.Serializable

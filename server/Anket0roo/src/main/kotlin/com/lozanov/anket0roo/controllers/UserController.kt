@@ -21,7 +21,7 @@ class UserController(
 ) {
 
     @ExperimentalCoroutinesApi
-    @PostMapping(value = ["/user"])
+    @PostMapping(value = ["/users"])
     @ResponseBody
     suspend fun createUser(@Valid @RequestBody user: User): ResponseEntity<*>? {
         val savedUser = userService.createUser(user)
@@ -29,10 +29,10 @@ class UserController(
                     org.springframework.security.core.userdetails.User(savedUser.username, savedUser.password, listOf()))))
     }
 
-    @GetMapping(value = ["user/{id}"])
+    @GetMapping(value = ["users/{id}"])
     @ResponseBody
-    fun getUserById(@PathVariable id: String): ResponseEntity<*>? {
-        val user = userService.findUser(id.toInt())
+    fun getUserById(@PathVariable("id") id: Int): ResponseEntity<*>? {
+        val user = userService.findUser(id)
         return ResponseEntity.ok(user)
     }
 }

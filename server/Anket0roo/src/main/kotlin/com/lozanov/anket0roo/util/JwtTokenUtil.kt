@@ -24,6 +24,8 @@ class JwtTokenUtil : Serializable {
     // retrieve expiration date from jwt token
     fun getExpirationDateFromToken(token: String?): Date = getClaimFromToken(token, Function { obj: Claims -> obj.expiration })
 
+    fun getQuestionnaireIdFromToken(token: String?): Int = getClaimFromToken(token, Function { obj: Claims -> obj["questionnaire_id", Int::class.java] })
+
     fun <T> getClaimFromToken(token: String?, claimsResolver: Function<Claims, T>): T {
         val claims = getAllClaimsFromToken(token)
         return claimsResolver.apply(claims)
@@ -41,8 +43,14 @@ class JwtTokenUtil : Serializable {
     // generate token for user
     fun generateToken(userDetails: UserDetails): String {
         return doGenerateToken(userDetails.authorities.map {
-            Pair<String, Boolean>(it.authority, true)
-        }.toMap().toMutableMap(), userDetails.username)
+            it.authority to true
+        }.toMap(), userDetails.username)
+    }
+
+    fun generateQuestionnaireToken(subject: String, questionnaireId: Int): String {
+        return doGenerateToken(mapOf(
+            "questionnaire_id" to questionnaireId
+        ), subject)
     }
 
     //while creating the token -
@@ -57,9 +65,9 @@ class JwtTokenUtil : Serializable {
 
 
     //validate token
-    fun validateToken(token: String?, userDetails: UserDetails): Boolean {
+    fun validateToken(token: String?, authUsername: String): Boolean {
         val username = getUsernameFromToken(token)
-        return username == userDetails.username && !isTokenExpired(token)
+        return username == authUsername && !isTokenExpired(token)
     }
 
     companion object {

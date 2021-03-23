@@ -15,6 +15,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 import javax.persistence.EntityNotFoundException
 import javax.persistence.NoResultException
 import javax.persistence.NonUniqueResultException
+import javax.validation.ValidationException
 
 
 @ControllerAdvice
@@ -24,7 +25,8 @@ class Anket0rooResponseEntityExceptionHandler : ResponseEntityExceptionHandler()
     fun handleConflict() {}
 
     @ResponseStatus(HttpStatus.NOT_ACCEPTABLE) // 406
-    @ExceptionHandler(javax.validation.ConstraintViolationException::class, TypeMismatchDataAccessException::class)
+    @ExceptionHandler(javax.validation.ConstraintViolationException::class,
+            TypeMismatchDataAccessException::class, ValidationException::class, InvalidFormatException::class)
     fun handleInvalidData() {}
 
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR) // 500
@@ -32,7 +34,7 @@ class Anket0rooResponseEntityExceptionHandler : ResponseEntityExceptionHandler()
     fun handleMapping() {}
 
     @ResponseStatus(HttpStatus.FORBIDDEN) // 403
-    @ExceptionHandler(PermissionDeniedDataAccessException::class)
+    @ExceptionHandler(PermissionDeniedDataAccessException::class, IllegalAccessException::class)
     fun handleForbidden() {}
 
     @ResponseStatus(HttpStatus.NOT_FOUND) // 404
@@ -42,4 +44,12 @@ class Anket0rooResponseEntityExceptionHandler : ResponseEntityExceptionHandler()
     @ResponseStatus(HttpStatus.UNAUTHORIZED) // 401
     @ExceptionHandler(BadCredentialsException::class)
     fun handleBadAuth() {}
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST) // 400
+    @ExceptionHandler(RequestFormatException::class)
+    fun handleBadRequest() {}
+
+    class InvalidFormatException(message: String) : Exception(message)
+
+    class RequestFormatException(message: String) : Exception(message)
 }
