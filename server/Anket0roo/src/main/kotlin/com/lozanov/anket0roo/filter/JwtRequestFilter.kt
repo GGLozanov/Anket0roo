@@ -67,7 +67,7 @@ class JwtRequestFilter(
         if (requestTokenHeader != null && requestTokenHeader.startsWith("Bearer ")) {
             jwtToken = requestTokenHeader.substring(7)
             try {
-                username = jwtTokenUtil?.getUsernameFromToken(jwtToken)
+                username = jwtTokenUtil.getUsernameFromToken(jwtToken)
             } catch (e: IllegalArgumentException) {
                 println("Unable to get JWT Token")
             } catch (e: ExpiredJwtException) {

@@ -9,5 +9,7 @@ import java.net.URL
 data class QuestionnaireCreateResponse(
     val questionnaire: Questionnaire,
     @Contextual
-    val uniqueUrl: URL
+    val uniqueUrl: URL,
+    @Contextual
+    val uniqueAdminUrl: URL
 ): Serializable

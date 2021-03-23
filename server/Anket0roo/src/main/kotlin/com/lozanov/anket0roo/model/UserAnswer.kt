@@ -24,16 +24,8 @@ data class UserAnswer(
     val createDate: Date,
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id", referencedColumnName = "user_id")
-    val user: User,
-
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id", referencedColumnName = "questionnaire_id")
     val questionnaire: Questionnaire,
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id", referencedColumnName = "question_id")
-    val question: Question,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id", referencedColumnName = "answer_id")

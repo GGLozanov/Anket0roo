@@ -2,23 +2,21 @@ package com.lozanov.anket0roo.controllers
 
 import com.lozanov.anket0roo.advice.Anket0rooResponseEntityExceptionHandler
 import com.lozanov.anket0roo.model.Questionnaire
-import com.lozanov.anket0roo.model.User
+import com.lozanov.anket0roo.model.UserAnswer
 import com.lozanov.anket0roo.response.QuestionnaireCreateResponse
 import com.lozanov.anket0roo.service.AuthenticationProvider
 import com.lozanov.anket0roo.service.QuestionnaireService
+import com.lozanov.anket0roo.service.UserAnswerService
 import com.lozanov.anket0roo.util.JwtTokenUtil
 import io.jsonwebtoken.ExpiredJwtException
 import io.jsonwebtoken.MalformedJwtException
 import io.jsonwebtoken.SignatureException
 import io.jsonwebtoken.UnsupportedJwtException
-import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder
 import java.lang.IllegalArgumentException
 import java.net.URL
-import javax.validation.ConstraintViolationException
 import javax.validation.Valid
 
 @RestController
@@ -26,23 +24,26 @@ import javax.validation.Valid
 class QuestionnaireController(
     private val questionnaireService: QuestionnaireService,
     private val jwtTokenUtil: JwtTokenUtil,
-    private val authenticationProvider: AuthenticationProvider
+    private val authenticationProvider: AuthenticationProvider,
+    private val userAnswerService: UserAnswerService
 ) {
 
     @PostMapping(value = ["/questionnaires"])
     @ResponseBody
     fun createQuestionnaire(@Valid @RequestBody questionnaire: Questionnaire): ResponseEntity<*>? {
         val savedQuestionnaire = questionnaireService.createQuestionnaire(questionnaire)
+        val baseUrl = ServletUriComponentsBuilder.fromCurrentContextPath()
+                .replacePath(null)
+                .build()
+                .toUriString()
         return ResponseEntity.ok(
                 QuestionnaireCreateResponse(
-                        savedQuestionnaire,
-                        URL(ServletUriComponentsBuilder.fromCurrentContextPath()
-                                .replacePath(null)
-                                .build()
-                                .toUriString() + "/${jwtTokenUtil.generateQuestionnaireToken(
-                                    authenticationProvider.getAuthenticationWithValidation().name, questionnaire.id
-                                )}"
-                        )
+                    savedQuestionnaire,
+                    URL(baseUrl + "/${jwtTokenUtil.generateQuestionnaireAdminToken(
+                            authenticationProvider.getAuthenticationWithValidation().name, questionnaire.id)}"),
+                    URL(baseUrl +
+                            "/${jwtTokenUtil.generateQuestionnaireToken(questionnaire.id)}"
+                    )
                 )
         )
     }
@@ -60,44 +61,32 @@ class QuestionnaireController(
         val questionnaires = questionnaireService.getPublicQuestionnaires()
         return ResponseEntity.ok(questionnaires)
     }
-
+    
     @GetMapping(value = ["/questionnaires/{tokenUrl}"])
     @ResponseBody
-    fun getQuestionnaire( @PathVariable tokenUrl: String): ResponseEntity<*>? {
-        try {
-            return ResponseEntity.ok(extractQuestionnaireTokenClaimsAndRetrievePerValidation(
+    fun getQuestionnaire(@PathVariable tokenUrl: String): ResponseEntity<*> {
+        return authenticationProvider.executeWithAuthAwareAndControllerContext({
+            ResponseEntity.ok(questionnaireService.getQuestionnaireById(jwtTokenUtil.getQuestionnaireIdFromToken(tokenUrl)))
+        }, { ResponseEntity.ok(questionnaireService.getQuestionnaireById(it.claims["questionnaire_id", Int::class.java])) })
+    }
+
+    @GetMapping(value = ["/questionnaires/admin/{tokenUrl}"])
+    @ResponseBody
+    fun getQuestionnaireAdmin(@PathVariable tokenUrl: String): ResponseEntity<*>? {
+        return authenticationProvider.executeWithAuthAwareAndControllerContext({
+            ResponseEntity.ok(extractQuestionnaireTokenClaimsAndRetrievePerValidation(
                 jwtTokenUtil.getUsernameFromToken(tokenUrl),
                 jwtTokenUtil.getQuestionnaireIdFromToken(tokenUrl)
             ))
-        } catch(ex: Exception) {
-            when(ex) {
-                is IllegalArgumentException -> {
-                    throw Anket0rooResponseEntityExceptionHandler.InvalidFormatException("Invalid input information supplied!")
-                }
-                is MalformedJwtException -> {
-                    throw Anket0rooResponseEntityExceptionHandler.InvalidFormatException("Link is malformed!")
-                }
-                is ExpiredJwtException -> {
-                    return ResponseEntity.ok(extractQuestionnaireTokenClaimsAndRetrievePerValidation(
-                        ex.claims.subject,
-                        ex.claims["questionnaire_id", Int::class.java]
-                    ))
-                }
-                is UnsupportedJwtException -> {
-                    throw Anket0rooResponseEntityExceptionHandler.RequestFormatException("Bad request format for unsupported JWT operation.")
-                }
-                is SignatureException -> {
-                    throw IllegalAccessException("Bad signature for link's JWT!")
-                }
-                else -> throw ex
-            }
-        }
+        }, { ResponseEntity.ok(extractQuestionnaireTokenClaimsAndRetrievePerValidation(
+                it.claims.subject, it.claims["questionnaire_id", Int::class.java]
+            )) })
     }
 
-    private fun extractQuestionnaireTokenClaimsAndRetrievePerValidation(username: String, questionnaireId: Int): Questionnaire {
+    private fun extractQuestionnaireTokenClaimsAndRetrievePerValidation(username: String?, questionnaireId: Int): List<UserAnswer> {
         val auth = authenticationProvider.getAuthenticationWithValidation()
         if(auth.name == username) {
-           return questionnaireService.getQuestionnaireById(questionnaireId)
+           return userAnswerService.getUserAnswers(questionnaireId)
         } else throw IllegalAccessException("Token for this URL does not match the authenticated user!")
     }
 }

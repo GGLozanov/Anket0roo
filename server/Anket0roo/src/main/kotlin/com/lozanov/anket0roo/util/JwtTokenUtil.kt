@@ -19,7 +19,7 @@ class JwtTokenUtil : Serializable {
     private val secret: String? = null
 
     // retrieve username from jwt token
-    fun getUsernameFromToken(token: String?): String = getClaimFromToken(token, Function { obj: Claims -> obj.subject })
+    fun getUsernameFromToken(token: String?): String? = getClaimFromToken(token, Function { obj: Claims -> obj.subject })
 
     // retrieve expiration date from jwt token
     fun getExpirationDateFromToken(token: String?): Date = getClaimFromToken(token, Function { obj: Claims -> obj.expiration })
@@ -47,10 +47,16 @@ class JwtTokenUtil : Serializable {
         }.toMap(), userDetails.username)
     }
 
-    fun generateQuestionnaireToken(subject: String, questionnaireId: Int): String {
+    fun generateQuestionnaireAdminToken(subject: String, questionnaireId: Int): String {
         return doGenerateToken(mapOf(
             "questionnaire_id" to questionnaireId
         ), subject)
+    }
+
+    fun generateQuestionnaireToken(questionnaireId: Int): String {
+        return doGenerateToken(mapOf(
+            "questionnaire_id" to questionnaireId
+        ))
     }
 
     //while creating the token -
@@ -58,7 +64,7 @@ class JwtTokenUtil : Serializable {
     //2. Sign the JWT using the HS512 algorithm and secret key.
     //3. According to JWS Compact Serialization(https://tools.ietf.org/html/draft-ietf-jose-json-web-signature-41#section-3.1)
     //   compaction of the JWT to a URL-safe string
-    private fun doGenerateToken(claims: Map<String, Any>, subject: String): String =
+    private fun doGenerateToken(claims: Map<String, Any>, subject: String? = null): String =
             Jwts.builder().setClaims(claims).setSubject(subject).setIssuedAt(Date(System.currentTimeMillis()))
                     .setExpiration(Date(System.currentTimeMillis() + JWT_TOKEN_VALIDITY * 1000))
                     .signWith(SignatureAlgorithm.HS512, secret).compact()
