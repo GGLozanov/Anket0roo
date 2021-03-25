@@ -1,4 +1,4 @@
-package com.lozanov.anket0roo.controllers
+package com.lozanov.anket0roo.controller
 
 import com.lozanov.anket0roo.advice.Anket0rooResponseEntityExceptionHandler
 import com.lozanov.anket0roo.model.Questionnaire
@@ -8,14 +8,9 @@ import com.lozanov.anket0roo.service.AuthenticationProvider
 import com.lozanov.anket0roo.service.QuestionnaireService
 import com.lozanov.anket0roo.service.UserAnswerService
 import com.lozanov.anket0roo.util.JwtTokenUtil
-import io.jsonwebtoken.ExpiredJwtException
-import io.jsonwebtoken.MalformedJwtException
-import io.jsonwebtoken.SignatureException
-import io.jsonwebtoken.UnsupportedJwtException
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder
-import java.lang.IllegalArgumentException
 import java.net.URL
 import javax.validation.Valid
 
@@ -72,15 +67,35 @@ class QuestionnaireController(
 
     @GetMapping(value = ["/questionnaires/admin/{tokenUrl}"])
     @ResponseBody
-    fun getQuestionnaireAdmin(@PathVariable tokenUrl: String): ResponseEntity<*>? {
+    fun getQuestionnaireAdmin(@PathVariable tokenUrl: String): ResponseEntity<*> {
         return authenticationProvider.executeWithAuthAwareAndControllerContext({
             ResponseEntity.ok(extractQuestionnaireTokenClaimsAndRetrievePerValidation(
                 jwtTokenUtil.getUsernameFromToken(tokenUrl),
                 jwtTokenUtil.getQuestionnaireIdFromToken(tokenUrl)
             ))
         }, { ResponseEntity.ok(extractQuestionnaireTokenClaimsAndRetrievePerValidation(
-                it.claims.subject, it.claims["questionnaire_id", Int::class.java]
+                it.claims.subject,
+                it.claims["questionnaire_id", Int::class.java]
             )) })
+    }
+
+    @PostMapping(value = ["/questionnaires/{tokenUrl}/submit"])
+    @ResponseBody
+    fun submitUserAnswers(@PathVariable tokenUrl: String, @Valid @RequestBody userAnswers: List<UserAnswer>): ResponseEntity<*> {
+        val saveUserAnswersWithValidation = {
+            val questionnaireId = jwtTokenUtil.getQuestionnaireIdFromToken(tokenUrl) // validate jwt
+
+            if(userAnswers.map { it.questionnaireId }.any { it != questionnaireId }) {
+                throw Anket0rooResponseEntityExceptionHandler.InvalidFormatException("User answers cannot conain answers from more than one questionnaire")
+            }
+
+            ResponseEntity.ok(userAnswerService.saveUserAnswers(userAnswers))
+        }
+
+        // db excepions, like passing in invalid ID mappings, are handled by response entity exceptions
+        return authenticationProvider.executeWithAuthAwareAndControllerContext(
+                { saveUserAnswersWithValidation() }, { saveUserAnswersWithValidation() }
+        )
     }
 
     private fun extractQuestionnaireTokenClaimsAndRetrievePerValidation(username: String?, questionnaireId: Int): List<UserAnswer> {

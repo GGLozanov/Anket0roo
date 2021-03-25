@@ -1,26 +1,21 @@
-package com.lozanov.anket0roo.controllers
+package com.lozanov.anket0roo.controller
 
 import com.lozanov.anket0roo.model.User
-import com.lozanov.anket0roo.request.JwtRequest
 import com.lozanov.anket0roo.response.JwtResponse
 import com.lozanov.anket0roo.service.UserService
 import com.lozanov.anket0roo.util.JwtTokenUtil
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.springframework.http.ResponseEntity
-import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.web.bind.annotation.*
-import javax.persistence.PersistenceException
 import javax.validation.Valid
 
 @RestController
 @CrossOrigin
-@ExperimentalCoroutinesApi
 class UserController(
     private val userService: UserService,
     private val jwtTokenUtil: JwtTokenUtil,
 ) {
 
-    @ExperimentalCoroutinesApi
     @PostMapping(value = ["/users"])
     @ResponseBody
     suspend fun createUser(@Valid @RequestBody user: User): ResponseEntity<*>? {

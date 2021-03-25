@@ -18,12 +18,14 @@ repositories {
 }
 
 dependencies {
+	implementation("org.springframework.boot:spring-boot-starter-parent:2.4.4")
 	implementation("org.springframework.boot:spring-boot-starter-web")
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa:2.4.0")
 	implementation("org.springframework.boot:spring-boot-starter-security")
 	implementation("io.jsonwebtoken:jjwt:0.9.1")
 	implementation("javax.persistence:javax.persistence-api:2.2")
+	implementation("javax.xml.bind:jaxb-api:2.4.0-b180830.0359")
 	implementation("com.h2database:h2")
 	runtimeOnly("mysql:mysql-connector-java")
 	implementation("javax.validation:validation-api:2.0.1.Final")

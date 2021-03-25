@@ -20,11 +20,11 @@ data class Answer(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Int,
 
-    @ManyToMany(mappedBy="answers",
-        cascade = [CascadeType.REMOVE],
-        fetch = FetchType.LAZY,
-    )
-    val questions: Set<Question> = setOf(),
+//    @ManyToMany(mappedBy="answers",
+//        cascade = [CascadeType.REMOVE],
+//        fetch = FetchType.LAZY,
+//    )
+//    val questions: Set<Question> = setOf(),
 
     @NotBlank
     @Size(max = 40)

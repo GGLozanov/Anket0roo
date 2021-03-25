@@ -22,13 +22,17 @@ data class Question(
         fetch = FetchType.LAZY,
     )
     @JoinTable(name = "question_answers",
-            joinColumns = [JoinColumn(name = "answer_id")], inverseJoinColumns = [JoinColumn(name = "question_id")])
+            joinColumns = [JoinColumn(name = "question_id", referencedColumnName="id")],
+            inverseJoinColumns = [JoinColumn(name = "answer_id", referencedColumnName="id")])
     val answers: Set<Answer> = setOf(),
 
-    @OneToMany(
-        mappedBy = "question",
-        cascade = [CascadeType.ALL],
-        orphanRemoval = true
-    )
-    val questionsQuestionnaire: List<QuestionnaireQuestion>
+    @Column(name = "owner_id")
+    val ownerId: Int
+
+//    @OneToMany(
+//        mappedBy = "question",
+//        cascade = [CascadeType.ALL],
+//        orphanRemoval = true
+//    )
+//    val questionsQuestionnaire: List<QuestionnaireQuestion>
 ): java.io.Serializable

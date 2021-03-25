@@ -7,7 +7,6 @@ import org.springframework.stereotype.Service
 import javax.persistence.PersistenceException
 
 @Service
-@ExperimentalCoroutinesApi
 class UserService(
     private val userRepository: UserRepository
 ) {

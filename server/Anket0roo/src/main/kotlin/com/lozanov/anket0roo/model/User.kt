@@ -36,5 +36,13 @@ data class User(
         fetch = FetchType.LAZY,
     )
     @JoinColumn(name = "author_id", referencedColumnName = "id")
-    val questionnaires: List<Questionnaire> = listOf()
+    val questionnaires: List<Questionnaire> = listOf(),
+
+    @OneToMany(
+            cascade = [CascadeType.REMOVE],
+            orphanRemoval = true,
+            fetch = FetchType.LAZY,
+    )
+    @JoinColumn(name = "owner_id", referencedColumnName = "id")
+    val questions: List<Question> = listOf(),
 ): java.io.Serializable

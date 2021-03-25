@@ -13,10 +13,12 @@ data class QuestionnaireQuestion(
 
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("questionnaireId")
+    @JoinColumn(name = "questionnaire_id")
     val questionnaire: Questionnaire,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("questionId")
+    @JoinColumn(name = "question_id")
     val question: Question,
 
     @Column(name = "mandatory")

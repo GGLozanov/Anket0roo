@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service
 
 @Service
 class UserAnswerService(private val userAnswerRepository: UserAnswerRepository) {
-    fun saveUserAnswers() {
+    fun saveUserAnswers(userAnswer: List<UserAnswer>) {
         // how do you pass an adequate body and save it without overhead 9000
     }
 

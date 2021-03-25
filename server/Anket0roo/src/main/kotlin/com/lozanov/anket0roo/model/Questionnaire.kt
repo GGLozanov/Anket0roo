@@ -17,12 +17,12 @@ data class Questionnaire(
 
     val closed: Boolean,
 
-    @OneToMany(
-        mappedBy = "questionnaire",
-        cascade = [CascadeType.ALL],
-        orphanRemoval = true
-    )
-    val questionnaireQuestions: List<QuestionnaireQuestion>,
+//    @OneToMany(
+//        mappedBy = "questionnaire",
+//        cascade = [CascadeType.ALL],
+//        orphanRemoval = true
+//    )
+//    val questionnaireQuestions: List<QuestionnaireQuestion>,
 
     @Column(name = "author_id")
     val authorId: Int

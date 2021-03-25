@@ -2,7 +2,7 @@ package com.lozanov.anket0roo.model
 
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.UseContextualSerialization
+import kotlinx.serialization.Transient
 import org.hibernate.annotations.CreationTimestamp
 import org.springframework.format.annotation.DateTimeFormat
 import java.sql.Date
@@ -21,13 +21,21 @@ data class UserAnswer(
     @DateTimeFormat
     @Contextual
     @Column(name = "answer_date")
-    val createDate: Date,
+    val createDate: java.util.Date,
+
+    @Column(name = "questionnaire_id")
+    val questionnaireId: Int,
+
+    @Column(name = "answer_id")
+    val answerId: Int,
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id", referencedColumnName = "questionnaire_id")
-    val questionnaire: Questionnaire,
+    @JoinColumn(insertable = false, updatable = false)
+    @Transient
+    val questionnaire: Questionnaire? = null,
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id", referencedColumnName = "answer_id")
-    val answer: Answer
+    @JoinColumn(insertable = false, updatable = false)
+    @Transient
+    val answer: Answer? = null
 ): java.io.Serializable
