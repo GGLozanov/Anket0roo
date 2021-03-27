@@ -6,7 +6,7 @@ import org.springframework.stereotype.Repository
 
 @Repository
 interface QuestionnaireRepository : CrudRepository<Questionnaire, Int> {
-    fun findQuestionnairesByPublicTrue(): List<Questionnaire>?
+    fun findQuestionnairesByPublicTrueAndAuthorIdNot(authorId: Int): List<Questionnaire>?
 
     fun findQuestionnairesByAuthorId(id: Int): List<Questionnaire>?
 }

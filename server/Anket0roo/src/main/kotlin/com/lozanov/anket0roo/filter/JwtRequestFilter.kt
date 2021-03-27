@@ -3,6 +3,7 @@ package com.lozanov.anket0roo.filter
 import com.lozanov.anket0roo.service.JwtUserDetailsService
 import com.lozanov.anket0roo.util.JwtTokenUtil
 import io.jsonwebtoken.ExpiredJwtException
+import org.springframework.http.HttpMethod
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
@@ -15,7 +16,6 @@ import javax.servlet.ServletException
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletRequestWrapper
 import javax.servlet.http.HttpServletResponse
-
 
 @Component
 class JwtRequestFilter(
@@ -52,13 +52,15 @@ class JwtRequestFilter(
         // JWT Token is in the form "Bearer token". Remove Bearer word and get
         // only the Token
 
-        if(request.requestURL.contains("/authenticate")) {
+        logger.info("Doing filter internal")
+
+        if(request.requestURL.contains("/authenticate") && request.method == HttpMethod.POST.name) {
             chain.doFilter(request, response)
             println("Resuming for endpoint without needed token")
             return
         } // guard clause against endpoints with no need for token
 
-        if(request.requestURL.contains("/user") && request.method == "POST") {
+        if(request.requestURL.contains("/user") && request.method == HttpMethod.POST.name) {
             chain.doFilter(UserCreateHttpServletRequest(request), response)
             println("Resuming for endpoint without needed token")
             return

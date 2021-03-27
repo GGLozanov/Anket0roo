@@ -18,16 +18,16 @@ class UserController(
 
     @PostMapping(value = ["/users"])
     @ResponseBody
-    suspend fun createUser(@Valid @RequestBody user: User): ResponseEntity<*>? {
+    fun createUser(@Valid @RequestBody user: User): ResponseEntity<*>? {
         val savedUser = userService.createUser(user)
         return ResponseEntity.ok(JwtResponse(jwtTokenUtil.generateToken(
                     org.springframework.security.core.userdetails.User(savedUser.username, savedUser.password, listOf()))))
     }
 
-    @GetMapping(value = ["users/{id}"])
+    @GetMapping(value = ["users/{username}"])
     @ResponseBody
-    fun getUserById(@PathVariable("id") id: Int): ResponseEntity<*>? {
-        val user = userService.findUser(id)
+    fun getUserById(@PathVariable("username") username: String): ResponseEntity<*>? {
+        val user = userService.findUserByUsername(username)
         return ResponseEntity.ok(user)
     }
 }

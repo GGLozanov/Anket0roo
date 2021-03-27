@@ -9,8 +9,8 @@ class QuestionnaireService(private val questionnaireRepository: QuestionnaireRep
     fun getUserQuestionnaires(userId: Int): List<Questionnaire> =
             questionnaireRepository.findQuestionnairesByAuthorId(userId) ?: listOf()
 
-    fun getPublicQuestionnaires(): List<Questionnaire> =
-        questionnaireRepository.findQuestionnairesByPublicTrue() ?: listOf()
+    fun getPublicQuestionnaires(requestUserId: Int): List<Questionnaire> =
+        questionnaireRepository.findQuestionnairesByPublicTrueAndAuthorIdNot(requestUserId) ?: listOf()
 
     fun createQuestionnaire(questionnaire: Questionnaire): Questionnaire =
             questionnaireRepository.save(questionnaire)

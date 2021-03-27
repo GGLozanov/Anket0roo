@@ -14,4 +14,7 @@ import javax.transaction.Transactional
 interface UserRepository : CrudRepository<User, Int> {
     @Transactional
     fun findByUsername(username: String): User?
+
+    @Query("select u.id from User u where u.username like :username")
+    fun findIdByUsername(username: String): Int?
 }

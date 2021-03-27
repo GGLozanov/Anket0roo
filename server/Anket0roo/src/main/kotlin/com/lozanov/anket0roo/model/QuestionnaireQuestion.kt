@@ -1,6 +1,7 @@
 package com.lozanov.anket0roo.model
 
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 import org.hibernate.annotations.NaturalIdCache
 import javax.persistence.*
 
@@ -9,12 +10,14 @@ import javax.persistence.*
 @Serializable
 data class QuestionnaireQuestion(
     @EmbeddedId
-    val questionAnswerId: QuestionnaireQuestionId,
+    @Transient
+    val questionAnswerId: QuestionnaireQuestionId? = null,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("questionnaireId")
     @JoinColumn(name = "questionnaire_id")
-    val questionnaire: Questionnaire,
+    @Transient
+    val questionnaire: Questionnaire? = null,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("questionId")

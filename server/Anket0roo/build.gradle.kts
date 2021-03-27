@@ -27,6 +27,7 @@ dependencies {
 	implementation("javax.persistence:javax.persistence-api:2.2")
 	implementation("javax.xml.bind:jaxb-api:2.4.0-b180830.0359")
 	implementation("com.h2database:h2")
+	implementation("commons-fileupload:commons-fileupload:1.4")
 	runtimeOnly("mysql:mysql-connector-java")
 	implementation("javax.validation:validation-api:2.0.1.Final")
 	implementation("io.projectreactor.kotlin:reactor-kotlin-extensions")

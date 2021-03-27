@@ -1,4 +1,4 @@
-package com.lozanov.anket0roo.entrypoint
+package com.lozanov.anket0roo.handler
 
 import org.springframework.security.core.AuthenticationException
 import org.springframework.security.web.AuthenticationEntryPoint

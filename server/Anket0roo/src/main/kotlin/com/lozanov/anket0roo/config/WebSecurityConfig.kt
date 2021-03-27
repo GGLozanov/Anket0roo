@@ -1,7 +1,10 @@
 package com.lozanov.anket0roo.config
 
-import com.lozanov.anket0roo.entrypoint.JwtAuthenticationEntryPoint
+import com.lozanov.anket0roo.handler.JwtAuthenticationEntryPoint
 import com.lozanov.anket0roo.filter.JwtRequestFilter
+import com.lozanov.anket0roo.handler.JwtAccessDeniedHandler
+import com.lozanov.anket0roo.service.JwtUserDetailsService
+import com.lozanov.anket0roo.util.JwtTokenUtil
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -33,19 +36,17 @@ class WebSecurityConfig : WebSecurityConfigurerAdapter() {
     private val jwtRequestFilter: JwtRequestFilter? = null
 
     @Autowired
+    private val passwordEncoder: BCryptPasswordEncoder? = null
+
+    @Autowired
     @Throws(Exception::class)
     fun configureGlobal(auth: AuthenticationManagerBuilder) {
         // configure AuthenticationManager so that it knows from where to load
         // user for matching credentials
         // Use BCryptPasswordEncoder
         auth.userDetailsService(jwtUserDetailsService)
-                .passwordEncoder(passwordEncoder())
+                .passwordEncoder(passwordEncoder)
                 .and().eraseCredentials(false)
-    }
-
-    @Bean
-    fun passwordEncoder(): PasswordEncoder {
-        return BCryptPasswordEncoder()
     }
 
     @Bean
@@ -58,11 +59,10 @@ class WebSecurityConfig : WebSecurityConfigurerAdapter() {
     override fun configure(httpSecurity: HttpSecurity) {
         // We don't need CSRF for this example
         httpSecurity.csrf().disable() // dont authenticate this particular request
-                .authorizeRequests().antMatchers("/authenticate").permitAll()
-                .antMatchers(HttpMethod.POST,"/user").permitAll()
+                .authorizeRequests().antMatchers(HttpMethod.POST, "/authenticate", "/users").permitAll()
                 .anyRequest() // all other requests need to be authenticated
                 .authenticated().and().exceptionHandling() // make sure we use stateless session; session won't be used to store user's state.
-        .authenticationEntryPoint(jwtAuthenticationEntryPoint).and().sessionManagement()
+                .authenticationEntryPoint(jwtAuthenticationEntryPoint).and().sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 
         // Add a com.lozanov.TicketMachine.filter to validate the tokens with every request

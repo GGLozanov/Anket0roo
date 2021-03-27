@@ -4,9 +4,11 @@ import com.lozanov.anket0roo.advice.Anket0rooResponseEntityExceptionHandler
 import com.lozanov.anket0roo.model.Questionnaire
 import com.lozanov.anket0roo.model.UserAnswer
 import com.lozanov.anket0roo.response.QuestionnaireCreateResponse
+import com.lozanov.anket0roo.response.Response
 import com.lozanov.anket0roo.service.AuthenticationProvider
 import com.lozanov.anket0roo.service.QuestionnaireService
 import com.lozanov.anket0roo.service.UserAnswerService
+import com.lozanov.anket0roo.service.UserService
 import com.lozanov.anket0roo.util.JwtTokenUtil
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -20,6 +22,7 @@ class QuestionnaireController(
     private val questionnaireService: QuestionnaireService,
     private val jwtTokenUtil: JwtTokenUtil,
     private val authenticationProvider: AuthenticationProvider,
+    private val userService: UserService,
     private val userAnswerService: UserAnswerService
 ) {
 
@@ -53,16 +56,28 @@ class QuestionnaireController(
     @GetMapping(value = ["/questionnaires"])
     @ResponseBody
     fun getPublicUserQuestionnaires(): ResponseEntity<*> {
-        val questionnaires = questionnaireService.getPublicQuestionnaires()
+        val questionnaires = questionnaireService.getPublicQuestionnaires(
+                userService.findUserIdByUsername(authenticationProvider.getAuthenticationWithValidation().name)
+        )
         return ResponseEntity.ok(questionnaires)
     }
     
     @GetMapping(value = ["/questionnaires/{tokenUrl}"])
     @ResponseBody
     fun getQuestionnaire(@PathVariable tokenUrl: String): ResponseEntity<*> {
+        fun sendResponseBasedOnQuestionnaireClosed(questionnaire: Questionnaire): ResponseEntity<*> {
+            return if(questionnaire.closed) {
+                ResponseEntity.ok(questionnaire)
+            } else {
+                ResponseEntity.status(403).body(Response("Questionnaire has been closed to public access! Access forbidden!"))
+            }
+        }
+        
         return authenticationProvider.executeWithAuthAwareAndControllerContext({
-            ResponseEntity.ok(questionnaireService.getQuestionnaireById(jwtTokenUtil.getQuestionnaireIdFromToken(tokenUrl)))
-        }, { ResponseEntity.ok(questionnaireService.getQuestionnaireById(it.claims["questionnaire_id", Int::class.java])) })
+            sendResponseBasedOnQuestionnaireClosed(
+                    questionnaireService.getQuestionnaireById(jwtTokenUtil.getQuestionnaireIdFromToken(tokenUrl)))
+        }, { sendResponseBasedOnQuestionnaireClosed(
+                questionnaireService.getQuestionnaireById(it.claims["questionnaire_id", Int::class.java])) })
     }
 
     @GetMapping(value = ["/questionnaires/admin/{tokenUrl}"])
