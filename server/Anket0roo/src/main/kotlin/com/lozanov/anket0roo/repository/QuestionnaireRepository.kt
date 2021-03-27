@@ -9,4 +9,6 @@ interface QuestionnaireRepository : CrudRepository<Questionnaire, Int> {
     fun findQuestionnairesByPublicTrueAndAuthorIdNot(authorId: Int): List<Questionnaire>?
 
     fun findQuestionnairesByAuthorId(id: Int): List<Questionnaire>?
+
+    fun findQuestionnairesByAuthorIdAndId(authorId: Int, id: Int): Questionnaire?
 }

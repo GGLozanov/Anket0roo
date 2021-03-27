@@ -29,7 +29,7 @@ class QuestionnaireController(
     @PostMapping(value = ["/questionnaires"])
     @ResponseBody
     fun createQuestionnaire(@Valid @RequestBody questionnaire: Questionnaire): ResponseEntity<*>? {
-        val savedQuestionnaire = questionnaireService.createQuestionnaire(questionnaire)
+        val savedQuestionnaire = questionnaireService.saveQuestionnaire(questionnaire)
         val baseUrl = ServletUriComponentsBuilder.fromCurrentContextPath()
                 .replacePath(null)
                 .build()
@@ -46,7 +46,7 @@ class QuestionnaireController(
         )
     }
 
-    @GetMapping(value = ["users/{id}/questionnaires"])
+    @GetMapping(value = ["/users/{username}/questionnaires"])
     @ResponseBody
     fun getUserQuestionnaires(@PathVariable("id") id: Int): ResponseEntity<*>? {
         val questionnaires = questionnaireService.getUserQuestionnaires(id)
@@ -57,7 +57,7 @@ class QuestionnaireController(
     @ResponseBody
     fun getPublicUserQuestionnaires(): ResponseEntity<*> {
         val questionnaires = questionnaireService.getPublicQuestionnaires(
-                userService.findUserIdByUsername(authenticationProvider.getAuthenticationWithValidation().name)
+            userService.findUserIdByUsername(authenticationProvider.getAuthenticationWithValidation().name)
         )
         return ResponseEntity.ok(questionnaires)
     }
@@ -111,6 +111,14 @@ class QuestionnaireController(
         return authenticationProvider.executeWithAuthAwareAndControllerContext(
                 { saveUserAnswersWithValidation() }, { saveUserAnswersWithValidation() }
         )
+    }
+
+    @PutMapping(value = ["/users/{username}/questionnaires/{qId}/close"])
+    @ResponseBody
+    fun closeQuestionnaire(@PathVariable username: String, @PathVariable("qId") questionnaireId: Int): ResponseEntity<*> {
+        val questionnaire = questionnaireService.getUserQuestionnaireById(userService.findUserIdByUsername(username), questionnaireId)
+        questionnaireService.saveQuestionnaire(questionnaire.copy(closed = true))
+        return ResponseEntity.ok(Response("Questionnaire with id $questionnaireId and owner $username successfully closed"))
     }
 
     private fun extractQuestionnaireTokenClaimsAndRetrievePerValidation(username: String?, questionnaireId: Int): List<UserAnswer> {
