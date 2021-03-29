@@ -12,6 +12,7 @@ import org.springframework.context.annotation.Bean
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder
 import javax.servlet.ServletContext
 import javax.validation.Valid
 
@@ -21,9 +22,15 @@ class QuestionController(
     private val questionService: QuestionService,
     private val userService: UserService,
     private val questionMediaService: QuestionMediaService,
-    private val servletContext: ServletContext,
-    private val linkRegex: Regex
 ) {
+    private val linkRegex: Regex by lazy {
+        Regex(Regex.escape(ServletUriComponentsBuilder.fromCurrentContextPath()
+                .replacePath(null)
+                .build()
+                .toUriString()) +
+                "${MediaController.QUESTIONNAIRES_MEDIA_PATH}/[^.]+\\.jpg")
+    }
+
     @GetMapping(value = ["/users/{username}/questions"])
     @ResponseBody
     fun getUserQuestions(@PathVariable username: String): ResponseEntity<*> =
