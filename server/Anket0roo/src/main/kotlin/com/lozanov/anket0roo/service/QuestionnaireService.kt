@@ -7,11 +7,11 @@ import javax.persistence.EntityNotFoundException
 
 @Service
 class QuestionnaireService(private val questionnaireRepository: QuestionnaireRepository) {
-    fun getUserQuestionnaires(userId: Int): List<Questionnaire> =
-            questionnaireRepository.findQuestionnairesByAuthorId(userId) ?: listOf()
+    fun getUserQuestionnaires(username: String): List<Questionnaire> =
+            questionnaireRepository.findQuestionnaireByAuthorUsername(username) ?: listOf()
 
-    fun getUserQuestionnaireById(userId: Int, qId: Int): Questionnaire =
-            questionnaireRepository.findQuestionnairesByAuthorIdAndId(userId, qId) ?: throw EntityNotFoundException()
+    fun getUserQuestionnaireById(username: String, qId: Int): Questionnaire =
+            questionnaireRepository.findQuestionnairesByAuthorUsernameAndId(username, qId) ?: throw EntityNotFoundException()
 
     fun getPublicQuestionnaires(requestUserId: Int): List<Questionnaire> =
         questionnaireRepository.findQuestionnairesByPublicTrueAndAuthorIdNot(requestUserId) ?: listOf()

@@ -9,5 +9,5 @@ import org.springframework.stereotype.Service
 class QuestionService(private val questionRepository: QuestionRepository) {
     fun createQuestion(question: Question): Question = questionRepository.save(question)
 
-    fun findUserQuestions(userId: Int): List<Question> = questionRepository.findQuestionByOwnerId(userId)
+    fun findUserQuestions(username: String): List<Question> = questionRepository.findQuestionsByOwnerUsername(username)
 }

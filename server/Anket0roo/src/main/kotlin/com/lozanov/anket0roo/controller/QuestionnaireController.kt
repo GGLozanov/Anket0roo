@@ -48,8 +48,8 @@ class QuestionnaireController(
 
     @GetMapping(value = ["/users/{username}/questionnaires"])
     @ResponseBody
-    fun getUserQuestionnaires(@PathVariable("id") id: Int): ResponseEntity<*>? {
-        val questionnaires = questionnaireService.getUserQuestionnaires(id)
+    fun getUserQuestionnaires(@PathVariable("username") username: String): ResponseEntity<*>? {
+        val questionnaires = questionnaireService.getUserQuestionnaires(username)
         return ResponseEntity.ok(questionnaires)
     }
 
@@ -116,7 +116,7 @@ class QuestionnaireController(
     @PutMapping(value = ["/users/{username}/questionnaires/{qId}/close"])
     @ResponseBody
     fun closeQuestionnaire(@PathVariable username: String, @PathVariable("qId") questionnaireId: Int): ResponseEntity<*> {
-        val questionnaire = questionnaireService.getUserQuestionnaireById(userService.findUserIdByUsername(username), questionnaireId)
+        val questionnaire = questionnaireService.getUserQuestionnaireById(username, questionnaireId)
         questionnaireService.saveQuestionnaire(questionnaire.copy(closed = true))
         return ResponseEntity.ok(Response("Questionnaire with id $questionnaireId and owner $username successfully closed"))
     }
