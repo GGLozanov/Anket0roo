@@ -13,36 +13,62 @@ import org.springframework.web.filter.OncePerRequestFilter
 import java.io.IOException
 import javax.servlet.FilterChain
 import javax.servlet.ServletException
+import javax.servlet.ServletInputStream
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletRequestWrapper
 import javax.servlet.http.HttpServletResponse
+
 
 @Component
 class JwtRequestFilter(
     private val jwtUserDetailsService: JwtUserDetailsService,
     private val jwtTokenUtil: JwtTokenUtil,
-    private val passwordEncoder: BCryptPasswordEncoder
 ) : OncePerRequestFilter() {
 
-    inner class UserCreateHttpServletRequest(req: HttpServletRequest) : HttpServletRequestWrapper(req) {
-        override fun getParameter(name: String?): String {
-            var res = super.getParameter(name)
-            if("password" == name) {
-                passwordEncoder.encode(res)
-            }
-            return res
-        }
-
-        override fun getParameterValues(name: String?): Array<String> {
-            val values = super.getParameterValues(name)
-            if ("password" == name) {
-                for (index in values.indices) {
-                    values[index] = passwordEncoder.encode(values[index])
-                }
-            }
-            return values
-        }
-    }
+    // dun work for now
+//    inner class UserCreateHttpServletRequest(req: HttpServletRequest) : HttpServletRequestWrapper(req) {
+//        override fun getParameter(name: String?): String {
+//            var res = super.getParameter(name)
+//            print("filtering per getParameter")
+//            if("password" == name) {
+//                res = passwordEncoder.encode(res)
+//            }
+//            return res
+//        }
+//
+//        override fun getParameterValues(name: String?): Array<String> {
+//            val values = super.getParameterValues(name)
+//            print("filtering per getParameterValues")
+//            if ("password" == name) {
+//                for (index in values.indices) {
+//                    values[index] = passwordEncoder.encode(values[index])
+//                }
+//            }
+//            return values
+//        }
+//
+//        override fun getParameterMap(): MutableMap<String, Array<String>> {
+//            val map = super.getParameterMap()
+//            print("filtering per getParameterMap")
+//            return map.apply {
+//                replace("password", arrayOf(passwordEncoder.encode(get("password").toString())))
+//            }
+//        }
+//
+//        override fun getQueryString(): String? {
+//                val map: Map<String, Array<String>> = parameterMap
+//            val builder = StringBuilder()
+//            for (param in map.keys) {
+//                val isParamPassword = param == "password"
+//                for (value in map[param]!!) {
+//                    builder.append(param).append("=").append(if(isParamPassword)
+//                        passwordEncoder.encode(value) else value).append("&")
+//                }
+//            }
+//            builder.deleteCharAt(builder.length - 1)
+//            return builder.toString()
+//        }
+//    }
 
     @Throws(ServletException::class, IOException::class)
     override fun doFilterInternal(request: HttpServletRequest, response: HttpServletResponse, chain: FilterChain) {
@@ -54,17 +80,12 @@ class JwtRequestFilter(
 
         logger.info("Doing filter internal")
 
-        if(request.requestURL.contains("/authenticate") && request.method == HttpMethod.POST.name) {
+        if((request.requestURL.equals("/authenticate") ||
+                        request.requestURL.equals("/user")) && request.method == HttpMethod.POST.name) {
             chain.doFilter(request, response)
             println("Resuming for endpoint without needed token")
             return
         } // guard clause against endpoints with no need for token
-
-        if(request.requestURL.contains("/user") && request.method == HttpMethod.POST.name) {
-            chain.doFilter(UserCreateHttpServletRequest(request), response)
-            println("Resuming for endpoint without needed token")
-            return
-        }
 
         if (requestTokenHeader != null && requestTokenHeader.startsWith("Bearer ")) {
             jwtToken = requestTokenHeader.substring(7)

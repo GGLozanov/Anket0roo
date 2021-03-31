@@ -18,6 +18,7 @@ data class User(
 
     @NotBlank
     @Size(max = 25)
+    @Column(unique = true)
     val username: String,
 
     @NotBlank
@@ -31,7 +32,7 @@ data class User(
     val password: String = "",
 
     @OneToMany(
-        cascade = [CascadeType.REMOVE],
+        cascade = [CascadeType.ALL],
         orphanRemoval = true,
         fetch = FetchType.LAZY,
     )
@@ -39,7 +40,7 @@ data class User(
     val questionnaires: List<Questionnaire> = listOf(),
 
     @OneToMany(
-            cascade = [CascadeType.REMOVE],
+            cascade = [CascadeType.ALL],
             orphanRemoval = true,
             fetch = FetchType.LAZY,
     )

@@ -44,17 +44,17 @@ class JwtTokenUtil : Serializable {
     fun generateToken(userDetails: UserDetails): String {
         return doGenerateToken(userDetails.authorities.map {
             it.authority to true
-        }.toMap(), userDetails.username)
+        }.toMap().toMutableMap(), userDetails.username)
     }
 
     fun generateQuestionnaireAdminToken(subject: String, questionnaireId: Int): String {
-        return doGenerateToken(mapOf(
+        return doGenerateToken(mutableMapOf(
             "questionnaire_id" to questionnaireId
         ), subject)
     }
 
     fun generateQuestionnaireToken(questionnaireId: Int): String {
-        return doGenerateToken(mapOf(
+        return doGenerateToken(mutableMapOf(
             "questionnaire_id" to questionnaireId
         ))
     }
@@ -64,7 +64,7 @@ class JwtTokenUtil : Serializable {
     //2. Sign the JWT using the HS512 algorithm and secret key.
     //3. According to JWS Compact Serialization(https://tools.ietf.org/html/draft-ietf-jose-json-web-signature-41#section-3.1)
     //   compaction of the JWT to a URL-safe string
-    private fun doGenerateToken(claims: Map<String, Any>, subject: String? = null): String =
+    private fun doGenerateToken(claims: MutableMap<String, Any>, subject: String? = null): String =
             Jwts.builder().setClaims(claims).setSubject(subject).setIssuedAt(Date(System.currentTimeMillis()))
                     .setExpiration(Date(System.currentTimeMillis() + JWT_TOKEN_VALIDITY * 1000))
                     .signWith(SignatureAlgorithm.HS512, secret).compact()

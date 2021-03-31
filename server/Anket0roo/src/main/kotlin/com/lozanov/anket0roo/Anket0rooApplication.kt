@@ -1,29 +1,41 @@
 package com.lozanov.anket0roo
 
 import com.lozanov.anket0roo.advice.Anket0rooResponseEntityExceptionHandler
-import com.lozanov.anket0roo.controller.MediaController.Companion.QUESTIONNAIRES_MEDIA_PATH
-import com.lozanov.anket0roo.service.JwtUserDetailsService
-import com.lozanov.anket0roo.util.JwtTokenUtil
-import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.SpringBootApplication
-import org.springframework.boot.autoconfigure.domain.EntityScan
 import org.springframework.boot.runApplication
 import org.springframework.context.annotation.Bean
-import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.Import
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
-import org.springframework.security.crypto.password.PasswordEncoder
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder
-import javax.servlet.ServletContext
+import org.springframework.web.servlet.config.annotation.CorsRegistry
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
+import java.net.InetAddress
+import javax.servlet.http.HttpServletRequest
+
 
 @SpringBootApplication
 @Import(Anket0rooResponseEntityExceptionHandler::class)
 class Anket0rooApplication {
+	@Value("\${server.servlet.context-path}")
+	private val contextPath: String? = null
+
+	@Value("\${server.port}")
+	private val port: String? = null
 
 	@Bean
 	fun passwordEncoder(): BCryptPasswordEncoder {
 		return BCryptPasswordEncoder()
+	}
+
+	@Bean
+	fun corsConfigurer(): WebMvcConfigurer? {
+		return object : WebMvcConfigurer {
+			override fun addCorsMappings(registry: CorsRegistry) {
+				val host = InetAddress.getLocalHost().canonicalHostName
+				val appUrl = java.lang.String.format("http://%s:%s%s", host, port, contextPath)
+				registry.addMapping(contextPath!!).allowedOrigins(appUrl)
+			}
+		}
 	}
 }
 

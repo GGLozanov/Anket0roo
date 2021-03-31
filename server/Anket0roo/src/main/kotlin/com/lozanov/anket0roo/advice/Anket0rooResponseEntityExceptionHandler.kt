@@ -6,19 +6,24 @@ import org.hibernate.exception.ConstraintViolationException
 import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.dao.PermissionDeniedDataAccessException
 import org.springframework.dao.TypeMismatchDataAccessException
+import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.authentication.DisabledException
 import org.springframework.transaction.TransactionSystemException
+import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.ResponseBody
 import org.springframework.web.bind.annotation.ResponseStatus
+import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.context.request.WebRequest
 import org.springframework.web.multipart.MaxUploadSizeExceededException
+import org.springframework.web.server.UnsupportedMediaTypeStatusException
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler
 import java.io.IOException
+import java.util.stream.Collectors
 import javax.annotation.Priority
 import javax.persistence.EntityNotFoundException
 import javax.persistence.NoResultException
@@ -59,7 +64,7 @@ class Anket0rooResponseEntityExceptionHandler : ResponseEntityExceptionHandler()
     }
 
     @ResponseStatus(HttpStatus.NOT_FOUND) // 404
-    @ExceptionHandler(EntityNotFoundException::class, NoResultException::class)
+    @ExceptionHandler(EntityNotFoundException::class, NoResultException::class, HttpClientErrorException.BadRequest::class)
     @ResponseBody
     fun handleNotFound(ex: Exception, request: WebRequest): ResponseEntity<*> {
         return ResponseEntity.status(400).body(Response("Requested resource not found! ${ex.message ?: ""}"))
@@ -79,10 +84,31 @@ class Anket0rooResponseEntityExceptionHandler : ResponseEntityExceptionHandler()
         return ResponseEntity.badRequest().body(Response("Malformed request sent! ${ex.message ?: ""}"))
     }
 
+    override fun handleMethodArgumentNotValid(ex: MethodArgumentNotValidException, headers: HttpHeaders, status: HttpStatus, request: WebRequest): ResponseEntity<Any> {
+        val errorList: MutableList<String> = ex
+                .bindingResult
+                .fieldErrors
+                .stream()
+                .map { fieldError -> fieldError.defaultMessage }
+                .collect(Collectors.toList())
+        val errorDetails = ErrorDetails(HttpStatus.BAD_REQUEST, ex.localizedMessage, errorList)
+        return handleExceptionInternal(ex, errorDetails, headers, errorDetails.status, request)
+
+    }
+
     @ExceptionHandler(MaxUploadSizeExceededException::class, FileRetrievalException::class)
     @ResponseBody
-    fun handleMaxSizeException(ex: MaxUploadSizeExceededException): ResponseEntity<*> {
-        return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(Response("File is incompatible or retrieval went wrong! ${ex.message ?: ""}"))
+    fun handleMaxSizeException(ex: Exception, request: WebRequest): ResponseEntity<*> {
+        return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED)
+                .body(Response("File is incompatible or retrieval went wrong! ${ex.message ?: ""}"))
+    }
+
+    @ResponseStatus(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
+    @ExceptionHandler(HttpClientErrorException.UnsupportedMediaType::class, UnsupportedMediaTypeStatusException::class)
+    @ResponseBody
+    fun handleUnsupportedMediaType(ex: Exception, request: WebRequest): ResponseEntity<*> {
+        return ResponseEntity.status(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
+                .body(Response("Unsupported media type! ${ex.message ?: ""}"))
     }
 
     class InvalidFormatException(message: String) : Exception(message)
@@ -92,4 +118,10 @@ class Anket0rooResponseEntityExceptionHandler : ResponseEntityExceptionHandler()
     class InitializationException(message: String) : Exception(message)
     
     class FileRetrievalException(message: String) : IOException(message)
+
+    data class ErrorDetails(
+        val status: HttpStatus,
+        val message: String,
+        val errors: List<String>
+    )
 }

@@ -26,9 +26,13 @@ class QuestionnaireController(
     private val userAnswerService: UserAnswerService
 ) {
 
-    @PostMapping(value = ["/questionnaires"])
+    @PostMapping(value = ["/users/{username}/questionnaires"])
     @ResponseBody
-    fun createQuestionnaire(@Valid @RequestBody questionnaire: Questionnaire): ResponseEntity<*>? {
+    fun createQuestionnaire(@PathVariable username: String, @Valid @RequestBody questionnaire: Questionnaire): ResponseEntity<*>? {
+        if(userService.findUserIdByUsername(username) != questionnaire.authorId) {
+            throw Anket0rooResponseEntityExceptionHandler.InvalidFormatException("User questionnaire cannot be authored by a different person from the auth user!")
+        }
+
         val savedQuestionnaire = questionnaireService.saveQuestionnaire(questionnaire)
         val baseUrl = ServletUriComponentsBuilder.fromCurrentContextPath()
                 .replacePath(null)

@@ -18,7 +18,7 @@ data class Question(
     val question: String, // image contained in regex form
 
     @ManyToMany(
-        cascade = [CascadeType.REMOVE],
+        cascade = [CascadeType.ALL],
         fetch = FetchType.LAZY,
     )
     @JoinTable(name = "question_answers",

@@ -22,7 +22,7 @@ data class QuestionnaireQuestion(
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("questionId")
     @JoinColumn(name = "question_id")
-    val question: Question,
+    val question: Question? = null,
 
     @Column(name = "mandatory")
     val mandatory: Boolean,

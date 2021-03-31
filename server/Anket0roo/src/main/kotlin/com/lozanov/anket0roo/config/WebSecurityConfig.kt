@@ -57,8 +57,10 @@ class WebSecurityConfig : WebSecurityConfigurerAdapter() {
     }
 
     class AuthenticatedUsernameValidator {
-        fun checkUsername(authentication: Authentication?, username: String): Boolean =
-            authentication != null && authentication.isAuthenticated && authentication.name == username
+        fun checkUsername(authentication: Authentication?, username: String): Boolean {
+            print("authentication: ${authentication?.name}; username sent: $username")
+            return authentication != null && authentication.isAuthenticated && authentication.name == username
+        }
     }
 
     @Bean
@@ -73,7 +75,7 @@ class WebSecurityConfig : WebSecurityConfigurerAdapter() {
                 .authorizeRequests()
                 .antMatchers(HttpMethod.POST, "/authenticate", "/users").permitAll()
                 .antMatchers("/questionnaires/{tokenUrl}/**").permitAll()
-                .antMatchers("/users/{username}").access("@authenticatedUsernameValidator.checkUsername(authentication, #username)")
+                .antMatchers("/users/{username}/**").access("@authenticatedUsernameValidator.checkUsername(authentication, #username)")
                 .anyRequest() // all other requests need to be authenticated
                 .authenticated().and().exceptionHandling() // make sure we use stateless session; session won't be used to store user's state.
                 .authenticationEntryPoint(jwtAuthenticationEntryPoint).and().sessionManagement()
