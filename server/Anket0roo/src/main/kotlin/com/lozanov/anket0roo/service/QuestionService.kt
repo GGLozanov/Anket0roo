@@ -10,4 +10,6 @@ class QuestionService(private val questionRepository: QuestionRepository) {
     fun createQuestion(question: Question): Question = questionRepository.save(question)
 
     fun findUserQuestions(username: String): List<Question> = questionRepository.findQuestionsByOwnerUsername(username)
+
+    fun findQuestionsByIds(ids: List<Int>): MutableIterable<Question> = questionRepository.findAllById(ids)
 }

@@ -1,12 +1,16 @@
 package com.lozanov.anket0roo.service
 
 import com.lozanov.anket0roo.model.Questionnaire
+import com.lozanov.anket0roo.repository.QuestionnaireQuestionRespository
 import com.lozanov.anket0roo.repository.QuestionnaireRepository
 import org.springframework.stereotype.Service
 import javax.persistence.EntityNotFoundException
 
 @Service
-class QuestionnaireService(private val questionnaireRepository: QuestionnaireRepository) {
+class QuestionnaireService(
+    private val questionnaireRepository: QuestionnaireRepository,
+    private val questionnaireQuestionRepository: QuestionnaireQuestionRespository
+) {
     fun getUserQuestionnaires(username: String): List<Questionnaire> =
             questionnaireRepository.findQuestionnaireByAuthorUsername(username) ?: listOf()
 
@@ -21,4 +25,7 @@ class QuestionnaireService(private val questionnaireRepository: QuestionnaireRep
     
     fun getQuestionnaireById(id: Int): Questionnaire =
             questionnaireRepository.findById(id).orElseThrow()
+
+    fun countQuestionnaireQuestionsByQuestionIdNotInForUser(questionIds: List<Int>, userId: Int) =
+            questionnaireQuestionRepository.countQuestionnaireQuestionsByQuestionIdNotInForUser(questionIds, userId)
 }

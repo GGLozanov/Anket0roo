@@ -1,14 +1,12 @@
 package com.lozanov.anket0roo.controller
 
+import com.fasterxml.jackson.databind.exc.InvalidFormatException
 import com.lozanov.anket0roo.advice.Anket0rooResponseEntityExceptionHandler
 import com.lozanov.anket0roo.model.Questionnaire
 import com.lozanov.anket0roo.model.UserAnswer
 import com.lozanov.anket0roo.response.QuestionnaireCreateResponse
 import com.lozanov.anket0roo.response.Response
-import com.lozanov.anket0roo.service.AuthenticationProvider
-import com.lozanov.anket0roo.service.QuestionnaireService
-import com.lozanov.anket0roo.service.UserAnswerService
-import com.lozanov.anket0roo.service.UserService
+import com.lozanov.anket0roo.service.*
 import com.lozanov.anket0roo.util.JwtTokenUtil
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -20,6 +18,7 @@ import javax.validation.Valid
 @CrossOrigin
 class QuestionnaireController(
     private val questionnaireService: QuestionnaireService,
+    private val questionService: QuestionService,
     private val jwtTokenUtil: JwtTokenUtil,
     private val authenticationProvider: AuthenticationProvider,
     private val userService: UserService,
@@ -29,9 +28,26 @@ class QuestionnaireController(
     @PostMapping(value = ["/users/{username}/questionnaires"])
     @ResponseBody
     fun createQuestionnaire(@PathVariable username: String, @Valid @RequestBody questionnaire: Questionnaire): ResponseEntity<*>? {
+        print("Questionnaire generated: $questionnaire")
         if(userService.findUserIdByUsername(username) != questionnaire.authorId) {
             throw Anket0rooResponseEntityExceptionHandler.InvalidFormatException("User questionnaire cannot be authored by a different person from the auth user!")
         }
+
+        val questionIds = questionnaire.questionnaireQuestions.map { it.questionAnswerId.questionId }
+        if(questionnaireService.countQuestionnaireQuestionsByQuestionIdNotInForUser(
+                        questionIds,
+                        userService.findUserIdByUsername(username)) > 0) {
+            throw Anket0rooResponseEntityExceptionHandler.InvalidFormatException("User questionnaire cannot have questions the user does not own!")
+        }
+        questionService.findQuestionsByIds(questionIds).forEach {
+            val matchingQuestionnaireQuestion = questionnaire.questionnaireQuestions.find { questionnaire -> questionnaire.questionAnswerId.questionId == it.id }
+            if(matchingQuestionnaireQuestion != null) {
+                matchingQuestionnaireQuestion.question = it // everything's by reference... it's byotiful
+                matchingQuestionnaireQuestion.questionnaire = questionnaire
+            } else {
+                throw Anket0rooResponseEntityExceptionHandler.InvalidFormatException("User questionnaire cannot contain questions with unknown/undefined IDs!")
+            }
+        } // bruh, this JPA stuff is nuts
 
         val savedQuestionnaire = questionnaireService.saveQuestionnaire(questionnaire)
         val baseUrl = ServletUriComponentsBuilder.fromCurrentContextPath()
@@ -41,10 +57,10 @@ class QuestionnaireController(
         return ResponseEntity.ok(
                 QuestionnaireCreateResponse(
                     savedQuestionnaire,
-                    URL(baseUrl + "/${jwtTokenUtil.generateQuestionnaireAdminToken(
+                    URL(baseUrl + "/questionnaires/${jwtTokenUtil.generateQuestionnaireAdminToken(
                             authenticationProvider.getAuthenticationWithValidation().name, questionnaire.id)}"),
                     URL(baseUrl +
-                            "/${jwtTokenUtil.generateQuestionnaireToken(questionnaire.id)}"
+                            "/questionnaires/admin/${jwtTokenUtil.generateQuestionnaireToken(questionnaire.id)}"
                     )
                 )
         )

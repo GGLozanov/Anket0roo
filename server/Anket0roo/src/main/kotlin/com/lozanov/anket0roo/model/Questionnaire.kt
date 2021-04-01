@@ -26,4 +26,5 @@ data class Questionnaire(
 
     @Column(name = "author_id")
     val authorId: Int
+
 ): java.io.Serializable
