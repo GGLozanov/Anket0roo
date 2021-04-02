@@ -8,6 +8,7 @@ import com.lozanov.anket0roo.response.QuestionnaireCreateResponse
 import com.lozanov.anket0roo.response.Response
 import com.lozanov.anket0roo.service.*
 import com.lozanov.anket0roo.util.JwtTokenUtil
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder
@@ -24,6 +25,8 @@ class QuestionnaireController(
     private val userService: UserService,
     private val userAnswerService: UserAnswerService
 ) {
+    @Value("\${client.url}")
+    private val clientUrl: String? = null
 
     @PostMapping(value = ["/users/{username}/questionnaires"])
     @ResponseBody
@@ -50,16 +53,12 @@ class QuestionnaireController(
         } // bruh, this JPA stuff is nuts
 
         val savedQuestionnaire = questionnaireService.saveQuestionnaire(questionnaire)
-        val baseUrl = ServletUriComponentsBuilder.fromCurrentContextPath()
-                .replacePath(null)
-                .build()
-                .toUriString()
         return ResponseEntity.ok(
                 QuestionnaireCreateResponse(
                     savedQuestionnaire,
-                    URL(baseUrl + "/questionnaires/${jwtTokenUtil.generateQuestionnaireAdminToken(
+                    URL(clientUrl + "/questionnaires/${jwtTokenUtil.generateQuestionnaireAdminToken(
                             authenticationProvider.getAuthenticationWithValidation().name, questionnaire.id)}"),
-                    URL(baseUrl +
+                    URL(clientUrl +
                             "/questionnaires/admin/${jwtTokenUtil.generateQuestionnaireToken(questionnaire.id)}"
                     )
                 )
