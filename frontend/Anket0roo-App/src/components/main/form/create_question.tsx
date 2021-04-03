@@ -3,7 +3,7 @@ import {useState} from "react";
 import ImageUploader from "react-images-upload";
 import {Button, FormControl, makeStyles} from "@material-ui/core";
 
-const createQuestionnaireStyles = makeStyles({
+const useStyles = makeStyles({
 
 });
 
