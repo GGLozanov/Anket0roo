@@ -43,7 +43,7 @@ class QuestionController(
 
         if(sentFile && !linkRegex.matches(questionCreateRequest.question.question)) {
             throw Anket0rooResponseEntityExceptionHandler.RequestFormatException(
-                    "Cannot send request with a question contaning an image without " +
+                    "Cannot send request with a question containing an image without " +
                             "the image name being present in the form of a regex!")
         }
 

@@ -1,5 +1,5 @@
 import * as React from "react";
 
-const Login: React.FC = () => {
+export const Login: React.FC = () => {
     return ();
 }

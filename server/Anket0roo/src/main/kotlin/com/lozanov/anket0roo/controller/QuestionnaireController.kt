@@ -56,10 +56,10 @@ class QuestionnaireController(
         return ResponseEntity.ok(
                 QuestionnaireCreateResponse(
                     savedQuestionnaire,
-                    URL(clientUrl + "/questionnaires/${jwtTokenUtil.generateQuestionnaireAdminToken(
-                            authenticationProvider.getAuthenticationWithValidation().name, questionnaire.id)}"),
+                    URL(clientUrl + "/questionnaires/${jwtTokenUtil.generateQuestionnaireToken(questionnaire.id)}"),
                     URL(clientUrl +
-                            "/questionnaires/admin/${jwtTokenUtil.generateQuestionnaireToken(questionnaire.id)}"
+                            "/questionnaires/admin/${jwtTokenUtil.generateQuestionnaireAdminToken(
+                                    authenticationProvider.getAuthenticationWithValidation().name, questionnaire.id)}"
                     )
                 )
         )

@@ -16,7 +16,6 @@ import java.nio.file.StandardCopyOption
 import java.util.stream.Stream
 import javax.servlet.ServletContext
 
-
 @Service
 class MediaService(
     protected val servletContext: ServletContext
@@ -25,10 +24,12 @@ class MediaService(
     @Value("\${spring.servlet.multipart.location}")
     private val rootDir: String = ""
 
-    private val rootPath: Path = Paths.get(servletContext.getRealPath(rootDir)
-            ?: throw Anket0rooResponseEntityExceptionHandler
-                    .InitializationException("Cannot NOT resolve servlet context path with root upload directory path"))
-            .toAbsolutePath().normalize()
+    private val rootPath: Path by lazy {
+        Paths.get(servletContext.getRealPath(rootDir)
+                ?: throw Anket0rooResponseEntityExceptionHandler
+                        .InitializationException("Cannot NOT resolve servlet context path with root upload directory path"))
+                .toAbsolutePath().normalize()
+    }
 
     init {
         if(!Files.isDirectory(rootPath)) {

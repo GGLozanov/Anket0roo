@@ -5,27 +5,22 @@ import WebFont from "webfontloader";
 import { ThemeProvider } from "@material-ui/core/styles";
 import {mainTheme} from "../theme/main_theme";
 import {AuthContext} from "../context/auth_context";
-import {useState} from "react";
+import {useEffect, useState} from "react";
+import {constants} from "../util/consts";
 
 WebFont.load({google: {families: ["Roboto:300,400,500"]}});
 
-const tokenKey = "token";
-
 export default function App() {
-    const [token, setToken] = useState(localStorage.getItem(tokenKey))
+    const [token, setToken] = useState(null);
 
-    const login = () => {
-        setToken(token);
+    useEffect(() => {
+        const jwt = localStorage.getItem(constants.tokenKey);
 
-        localStorage.setItem(tokenKey, token)
-    }
-    const logout = () => {
-        setToken(null);
-    }
+    });
 
     return (
         <ThemeProvider theme={mainTheme}>
-            <AuthContext.Provider value={{isLoggedIn: !!token, token: null, login: login, logout: logout}}>
+            <AuthContext.Provider value={{isLoggedIn: !!token, token: token}}>
                 <AppRouter>
                 </AppRouter>
             </AuthContext.Provider>

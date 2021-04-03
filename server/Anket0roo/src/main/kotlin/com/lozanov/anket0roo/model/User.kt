@@ -1,5 +1,7 @@
 package com.lozanov.anket0roo.model
 
+import com.fasterxml.jackson.annotation.JsonIgnore
+import com.fasterxml.jackson.annotation.JsonProperty
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import org.springframework.security.core.userdetails.UserDetails
@@ -29,6 +31,7 @@ data class User(
     @NotBlank
     @Size(max = 120)
     @Transient
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     val password: String = "",
 
     @OneToMany(

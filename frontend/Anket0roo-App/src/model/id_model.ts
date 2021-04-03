@@ -1,4 +1,10 @@
+import {Expose} from "class-transformer";
 
-class IdModel {
+export class IdModel {
+    @Expose()
+    id: number;
 
+    constructor(id: number) {
+        this.id = id;
+    }
 }
