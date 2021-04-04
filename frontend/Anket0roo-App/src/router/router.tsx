@@ -7,9 +7,13 @@ import {ViewQuestionnaireResults} from "../components/main/view_questionnaire_re
 import {PublicQuestionnaires} from "../components/main/profile/public_questionnaires";
 import {FillQuestionnaire} from "../components/main/form/fill_questionnaire";
 import {AuthWrapper} from "../components/auth/auth_wrapper";
+import {Login} from "../components/auth/login";
+import {SignUp} from "../components/auth/sign_up";
 
 export const AppRouter: React.FC = () => useRoutes([
         { path: '/', element: <AuthWrapper componentToRenderOnAuth={<Profile />}/> },
+        { path: 'login', element: <Login /> },
+        { path: 'signup', element: <SignUp /> },
         { path: 'profile',
             element: <AuthWrapper componentToRenderOnAuth={<Profile />}/>,
             children: [

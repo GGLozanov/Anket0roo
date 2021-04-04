@@ -41,7 +41,7 @@ interface OutlinedCardProps {
 
 // TODO: Keep track of state of press and etc.
 // TODO: Add check for mandatory (not even sure how tbh; probably not in this context-unarware component)
-export const QuestionCard = ({ questionnaireQ }: OutlinedCardProps) => {
+export const QuestionCard: React.FC<OutlinedCardProps> = ({ questionnaireQ }: OutlinedCardProps) => {
     const classes = useStyles();
 
     const [pressState, setPressState] = useState(new Map<number, boolean>(questionnaireQ.question.answers
