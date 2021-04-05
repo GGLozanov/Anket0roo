@@ -28,6 +28,8 @@
     "@hookform/resolvers": "^2.0.0",
     "@material-ui/core": "^4.11.3",
     "@material-ui/icons": "^4.11.2",
+    "@material-ui/lab": "^4.0.0-alpha.57",
+    "@react-navigation/native": "^5.9.4",
     "@types/jsonwebtoken": "^8.5.1",
     "@types/webfontloader": "^1.6.32",
     "axios": "^0.21.1",

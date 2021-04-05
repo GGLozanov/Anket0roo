@@ -14,7 +14,10 @@ class AuthService {
             username: username,
             email: email,
             password: password,
-        }).catch((error) => {
+        });
+
+        /*
+        ).catch((error) => {
             return error;
         }).then((response) => {
             if(response && response?.data.token) {
@@ -24,6 +27,7 @@ class AuthService {
 
             return null;
         });
+         */
     }
 }
 

@@ -3,7 +3,7 @@ import {Question} from "./question";
 import {Questionnaire} from "./questionnaire";
 import {Expose} from "class-transformer";
 
-class User extends IdModel {
+export class User extends IdModel {
     @Expose()
     username: string;
     @Expose()

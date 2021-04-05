@@ -1,6 +1,5 @@
 import * as React from "react";
-import {useContext} from "react";
-import {AuthContext} from '../../context/auth_context';
+import {useAuthContext} from '../../context/auth_context';
 import {Login} from "./login";
 
 interface AuthWrapperProps {
@@ -8,7 +7,7 @@ interface AuthWrapperProps {
 }
 
 export const AuthWrapper = ({ componentToRenderOnAuth }: AuthWrapperProps) => {
-    const authContext = useContext(AuthContext);
+    const authContext = useAuthContext();
 
     return authContext.isLoggedIn ? componentToRenderOnAuth : <Login />
 };

@@ -12,9 +12,11 @@ import {
 } from "@material-ui/core";
 
 import {Link} from "react-router-dom";
-import {useState} from "react";
+import {useContext, useState} from "react";
 import {LockOutlined} from "@material-ui/icons";
 import {Controller, useForm} from "react-hook-form";
+import {authService} from "../../service/auth_service";
+import {useAuthContext} from "../../context/auth_context";
 
 const useStyles = makeStyles((theme) => ({
     paper: {
@@ -36,29 +38,34 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
+interface AuthProps {
+    username: string;
+    password: string;
+}
+
 export const Login: React.FC = () => {
     const classes = useStyles();
 
-    const { handleSubmit, control, formState: { errors } } = useForm();
+    const { handleSubmit, control, reset, formState: { errors } } = useForm<AuthProps>();
 
     const [loginError, setLoginError] = useState('');
 
-    const onSubmit = (data: object) => {
-        // valid data's here
-        const username = data.username;
-        const password = data.password;
+    const authContext = useAuthContext();
 
-         // if auth attempt fail:
-        /*       reset(
-        {
-          email: '',
-          password: ''
-        },
-        {
-          errors: true,
-          dirtyFields: true
-        }
-      ); */
+    const onSubmit = ({password, username}: AuthProps) => {
+        // valid data's here
+        authService.login(username, password)
+            .catch((error) => {
+            reset({ username: '', password: '' },
+                { keepErrors: true, keepDirty: true });
+            setLoginError("There was an error! Please try again.");
+        }).then((response) => {
+            if(response && response?.data.token) {
+                authContext.login(response.data.token);
+            } else {
+                setLoginError("Invalid response! Please try again.");
+            }
+        });
     }
 
     return (
@@ -74,29 +81,27 @@ export const Login: React.FC = () => {
                 <form className={classes.form} onSubmit={handleSubmit(onSubmit)}>
                     <FormControl fullWidth variant="outlined">
                         <Controller
-                            name="email"
+                            name="username"
                             render={ ({ field }) =>
                                 <TextField
                                     {...field}
+                                    margin="normal"
+                                    name="username"
                                     variant="outlined"
                                     required
                                     fullWidth
-                                    id="email"
-                                    label="Email Address"
-                                    helperText={errors.email ? errors.email.message : null}
-                                    name="email"
-                                    autoComplete="email"
-                                    error={errors.email}
+                                    id="username"
+                                    label="Username"
+                                    helperText={errors.username ? errors.username.message : null}
+                                    autoComplete="name"
+                                    error={errors.username !== undefined}
                                 />
                             }
                             control={control}
                             defaultValue=""
                             rules={{
                                 required: true,
-                                pattern: {
-                                    value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i,
-                                    message: 'Invalid email address'
-                                }
+                                maxLength: 20
                             }}
                         />
                     </FormControl>
@@ -115,7 +120,7 @@ export const Login: React.FC = () => {
                                     id="password"
                                     autoComplete="current-password"
                                     helperText={errors.password ? errors.password.message : null}
-                                    error={errors.password}
+                                    error={errors.password !== undefined}
                                 />
                             }
                             control={control}

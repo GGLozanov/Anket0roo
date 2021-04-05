@@ -9,7 +9,10 @@ import {FillQuestionnaire} from "../components/main/form/fill_questionnaire";
 import {AuthWrapper} from "../components/auth/auth_wrapper";
 import {Login} from "../components/auth/login";
 import {SignUp} from "../components/auth/sign_up";
+import {CreateQuestionnaire} from "../components/main/form/create_questionnaire";
+import {CreateQuestion} from "../components/main/form/create_question";
 
+// Oh dear, I can already hear the React maniacs screaming at me
 export const AppRouter: React.FC = () => useRoutes([
         { path: '/', element: <AuthWrapper componentToRenderOnAuth={<Profile />}/> },
         { path: 'login', element: <Login /> },
@@ -21,6 +24,8 @@ export const AppRouter: React.FC = () => useRoutes([
                     element: <AuthWrapper componentToRenderOnAuth={<OwnQuestionnaires />}/>
                 },
                 { path: 'public_questionnaires', element: <AuthWrapper componentToRenderOnAuth={<PublicQuestionnaires />}/> },
+                { path: 'create_questionnaire', element: <AuthWrapper componentToRenderOnAuth={<CreateQuestionnaire />} /> },
+                { path: 'create_question', element: <AuthWrapper componentToRenderOnAuth={<CreateQuestion />} /> }
             ]
         },
         { path: 'questionnaires/:tokenUrl', element: <FillQuestionnaire /> },
