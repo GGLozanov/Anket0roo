@@ -8,6 +8,7 @@ import Typography from '@material-ui/core/Typography';
 import {mainTheme} from "../theme/main_theme";
 import {Question} from "../model/question";
 import {
+    CardMedia,
     Checkbox,
     FormControl,
     FormControlLabel,
@@ -19,10 +20,14 @@ import {
     RadioGroup
 } from "@material-ui/core";
 import {QuestionnaireQuestion} from "../model/questionnaire_question";
+import {questionRegex} from "../util/question_image_regex";
 
 const useStyles = makeStyles({
     root: {
         minWidth: 275,
+    },
+    media: {
+        height: 140,
     },
     bundle: {
         display: 'flex',
@@ -57,13 +62,20 @@ export const QuestionCard: React.FC<OutlinedCardProps> = ({ questionnaireQ }: Ou
         pressState.set(parseInt(event.target.name), event.target.checked);
         setPressState(pressState);
     };
+    const imageUrls = questionnaireQ.question.question.match(questionRegex);
+    const filteredQuestion = questionnaireQ.question.question.replace(questionRegex, "");
 
     return (
         <Card className={classes.root} variant="outlined">
             <CardContent>
                 <div className={classes.bundle}>
                     <FormControl component="fieldset">
-                        <FormLabel component="legend">{questionnaireQ.question.question}</FormLabel>
+                        <FormLabel component="legend">{filteredQuestion}</FormLabel>
+                        {imageUrls && <CardMedia
+                            className={classes.media}
+                            src={imageUrls[0]}
+                            title={filteredQuestion} />}
+
                         {!questionnaireQ.moreThanOneAnswer ? <RadioGroup name="question-answers" value={groupValue} onChange={handleRadioChange}>
                             {questionnaireQ.question.answers.map((answer) => {
                                 return <FormControlLabel value={answer.answer} control={<Radio />} label={answer.answer} />

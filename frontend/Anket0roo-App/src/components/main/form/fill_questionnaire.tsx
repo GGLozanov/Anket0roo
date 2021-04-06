@@ -1,10 +1,16 @@
 import * as React from "react";
 import {useParams} from "react-router";
+import {Box} from "@material-ui/core";
 
 export const FillQuestionnaire: React.FC = () => {
-    let urlParams = useParams();
+    const urlParams = useParams();
+
+    // handle questionnaire not found error
 
     // check if token valid, bla bla; reroute otherwise
+    return (
+        <Box></Box>
+    );
 }
 
 // makes a request to the /submit endpoint upon filling request

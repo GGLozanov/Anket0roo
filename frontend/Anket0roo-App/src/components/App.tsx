@@ -1,5 +1,4 @@
 import * as React from "react";
-import ReactDOM from 'react-dom';
 import { AppRouter } from '../router/router';
 import WebFont from "webfontloader";
 import { ThemeProvider } from "@material-ui/core/styles";
@@ -7,14 +6,14 @@ import {mainTheme} from "../theme/main_theme";
 import {AuthContext} from "../context/auth_context";
 import {useEffect, useState} from "react";
 import {constants} from "../util/consts";
+import {useNavigate} from "react-router";
 import {verify} from "jsonwebtoken";
-import {NavigateFunction, useNavigate} from "react-router";
 
 WebFont.load({google: {families: ["Roboto:300,400,500"]}});
 
 export default function App() {
     const [token, setToken] = useState(null);
-    const navigate: NavigateFunction = useNavigate();
+    const navigate = useNavigate();
 
     const login = (token: string) => {
         setToken(token);
@@ -22,24 +21,21 @@ export default function App() {
             constants.tokenKey,
             token
         );
-        navigate("profile");
+        navigate("profile", { replace: true });
     }
 
     const logout = () => {
         setToken(null);
         localStorage.removeItem(constants.tokenKey);
-        navigate("login");
+        navigate("login", { replace: true });
     }
-
-    useEffect(() => {
-        const jwt = localStorage.getItem(constants.tokenKey);
-
-    });
 
     let isLoggedIn: boolean;
     try {
         isLoggedIn = !!token;
-        verify(token, constants.jwtSecret);
+        if(isLoggedIn) {
+            verify(token, constants.jwtSecret);
+        }
     } catch(ex) {
         isLoggedIn = false
     }

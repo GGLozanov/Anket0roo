@@ -14,12 +14,33 @@ module.exports = {
     },
     resolve: {
         extensions: [".js", ".jsx", ".json", ".ts", ".tsx"],
+        fallback: {
+            "stream": require.resolve("stream-browserify"),
+            "util": require.resolve("util/"),
+            "crypto": require.resolve("crypto-browserify"),
+            "buffer": require.resolve("buffer/")
+        }
+    },
+    devServer: {
+        port: 8000
     },
     module: {
         rules: [
             {
                 test: /\.(ts|tsx)$/,
                 loader: "awesome-typescript-loader",
+            },
+            {
+                test: /\.(svg)$/,
+                exclude: /fonts/, /* dont want svg fonts from fonts folder to be included */
+                use: [
+                    {
+                        loader: 'svg-url-loader',
+                        options: {
+                            noquotes: true,
+                        },
+                    },
+                ],
             },
             {
                 enforce: "pre",

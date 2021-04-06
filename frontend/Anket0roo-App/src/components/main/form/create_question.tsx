@@ -15,7 +15,7 @@ export const CreateQuestion: React.FC = () => {
         setChosenPicture(files[0]);
     };
 
-    const onCreateQuestionButton = () => {
+    const onCreateQuestionButton = (event: React.MouseEvent) => {
 
     }
 
@@ -29,7 +29,7 @@ export const CreateQuestion: React.FC = () => {
                 singleImage={true}
             />
 
-            <Button onClick={onCreateQuestionButton()}>
+            <Button onClick={onCreateQuestionButton}>
             </Button>
         </FormControl>
     );

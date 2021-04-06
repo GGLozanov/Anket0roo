@@ -5,13 +5,16 @@ import {
     IconButton,
     makeStyles,
     Snackbar,
-    SvgIcon,
+    SvgIcon, Tabs,
     Theme,
     Toolbar,
-    Typography
+    Tab,
+    Typography, useTheme,
 } from "@material-ui/core";
 import MuiAlert from '@material-ui/lab/Alert';
 import MenuIcon from '@material-ui/icons/Menu';
+import CreateIcon from "@material-ui/icons/Create";
+import QuestionAnswerIcon from "@material-ui/Icons/QuestionAnswer";
 import {Component, useEffect, useState} from "react";
 import {UserContext} from "../../../context/user_context";
 import {userService} from "../../../service/user_service";
@@ -19,8 +22,10 @@ import {useAuthContext} from "../../../context/auth_context";
 import {plainToClass} from "class-transformer";
 import {User} from "../../../model/user";
 import {SwipeableLeftTemporaryNavDrawer} from "../../../layout/nav_drawer";
-import {OverridableComponent} from "@material-ui/core/OverridableComponent";
-import {SvgIconTypeMap} from "@material-ui/core/SvgIcon/SvgIcon";
+import {OwnQuestionnaires} from "./own_questionnaires";
+import {PublicQuestionnaires} from "./public_questionnaires";
+import {TabPanel} from "../../../layout/tab_panel";
+import SwipeableViews from "react-swipeable-views";
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -36,14 +41,23 @@ const useStyles = makeStyles((theme: Theme) =>
     }),
 );
 
+const tabProps = (idx: number) => {
+    return {
+        id: `full-width-tab-${idx}`,
+        'aria-controls': `full-width-tabpanel-${idx}`,
+    };
+}
+
 export const Profile: React.FC = () => {
     const classes = useStyles();
+    const theme = useTheme();
 
     const [snackbarOpen, setSnackBarOpen] = useState(false);
     const [user, setUser] = useState(null);
     const [profileName, setProfileName] = useState(null);
 
     const [open, setOpen] = useState(false);
+    const [tabValue, setTabValue] = useState(0);
 
     const toggleDrawer = (open: boolean) => (
         event: React.KeyboardEvent | React.MouseEvent,
@@ -67,6 +81,14 @@ export const Profile: React.FC = () => {
 
         setSnackBarOpen(false);
     }
+    
+    const handleSwipeableViewIndexChange = (idx: number) => {
+        setTabValue(idx);
+    }
+
+    const handleTabChange = (event: React.ChangeEvent<{}>, newIdx: number) => {
+        setTabValue(newIdx);
+    }
 
     useEffect(() => {
         if(user == null) {
@@ -88,9 +110,9 @@ export const Profile: React.FC = () => {
     return (
         <div className={classes.root}>
             <UserContext.Provider value={{user: user}}>
-                <AppBar position="static">
+                <AppBar position="static" color={"default"}>
                     <Toolbar>
-                        <IconButton edge="start" className={classes.menuButton} onClick={toggleDrawer}
+                        <IconButton edge="start" className={classes.menuButton} onClick={toggleDrawer(!open)}
                                     color="inherit" aria-label="menu">
                             <MenuIcon />
                         </IconButton>
@@ -98,15 +120,34 @@ export const Profile: React.FC = () => {
                             {profileName ? <div>Your Profile, {profileName}</div> : <div>Your Profile</div>}
                         </Typography>
                     </Toolbar>
+                    <Tabs
+                        value={tabValue}
+                        onChange={handleTabChange}
+                        indicatorColor="primary"
+                        textColor="primary"
+                        variant="fullWidth"
+                        aria-label="Your Questionnaires and Public Questionnaires"
+                        centered
+                    >
+                        <Tab label="Item One" {...tabProps(0)} />
+                        <Tab label="Item Two" {...tabProps(1)} />
+                    </Tabs>
                 </AppBar>
             </UserContext.Provider>
             <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={onSnackbarClose}>
                 <MuiAlert elevation={6} variant="filled" onClose={onSnackbarClose} severity="error">
                     Something went wrong! Please login again!</MuiAlert>
             </Snackbar>
-            <SwipeableLeftTemporaryNavDrawer routes={new Map(
-                [["create_questionnaire", () => <MenuIcon />], ["create_question", () => <MenuIcon />]]
-            )}  open={open} toggleDrawer={toggleDrawer}/>
+            <SwipeableLeftTemporaryNavDrawer routes={new Map([
+                    ["create_questionnaire", () => <CreateIcon />],
+                    ["create_question", () => <QuestionAnswerIcon />],
+                ])}  open={open} toggleDrawer={toggleDrawer}/>
+            <SwipeableViews axis={theme.direction === 'rtl' ? 'x-reverse' : 'x'}
+                            index={tabValue}
+                            onChangeIndex={handleSwipeableViewIndexChange}>
+                <TabPanel index={0} value={tabValue} children={<OwnQuestionnaires />} />
+                <TabPanel index={1} value={tabValue} children={<PublicQuestionnaires />} />
+                </SwipeableViews>
         </div>
     );
 }

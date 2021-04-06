@@ -28,7 +28,7 @@ function snakeToTitle(src: string): string {
 
 interface SwipeableLeftTemporaryNavDrawerProps {
     open: boolean;
-    toggleDrawer: (open) => void;
+    toggleDrawer: (open: boolean) => void;
     routes: Map<string, () => JSX.Element>;
 }
 
@@ -39,14 +39,14 @@ export const SwipeableLeftTemporaryNavDrawer: React.FC<SwipeableLeftTemporaryNav
         <SwipeableDrawer
             anchor={'left'}
             open={open}
-            onClose={toggleDrawer(false)}
-            onOpen={toggleDrawer(true)}
+            onClose={(props: any, context?: any) => toggleDrawer(false)}
+            onOpen={(props: any, context?: any) => toggleDrawer(true)}
         >
             <div
                 className={classes.list}
                 role="presentation"
-                onClick={toggleDrawer(false)}
-                onKeyDown={toggleDrawer(false)}
+                onClick={(props: any, context?: any) => toggleDrawer(false)}
+                onKeyDown={(props: any, context?: any) => toggleDrawer(false)}
             >
                 <List>
                     {Array.from(routes).map((pair: [string, () => JSX.Element]) => (

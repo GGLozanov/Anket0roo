@@ -1,6 +1,11 @@
 import {createContext, useContext} from "react";
+import {User} from "../model/user";
 
-export const UserContext = createContext({
+interface UserProps {
+    user?: User
+}
+
+export const UserContext = createContext<UserProps>({
     user: null
 });
 

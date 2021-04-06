@@ -11,6 +11,7 @@ import {Login} from "../components/auth/login";
 import {SignUp} from "../components/auth/sign_up";
 import {CreateQuestionnaire} from "../components/main/form/create_questionnaire";
 import {CreateQuestion} from "../components/main/form/create_question";
+import {FillQuestionnairePublic} from "../components/main/form/fill_questionnaire_public";
 
 // Oh dear, I can already hear the React maniacs screaming at me
 export const AppRouter: React.FC = () => useRoutes([
@@ -28,6 +29,7 @@ export const AppRouter: React.FC = () => useRoutes([
                 { path: 'create_question', element: <AuthWrapper componentToRenderOnAuth={<CreateQuestion />} /> }
             ]
         },
+        { path: 'questionnaires/fill/:id', element: <AuthWrapper componentToRenderOnAuth={<FillQuestionnairePublic />} /> },
         { path: 'questionnaires/:tokenUrl', element: <FillQuestionnaire /> },
         { path: 'questionnaires/admin/:tokenUrl', element: <ViewQuestionnaireResults /> },
         { path: '*', element: <Error errorCode={404} errorReason={"Requested URL not found!"} /> }
