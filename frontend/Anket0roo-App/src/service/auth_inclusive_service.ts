@@ -14,7 +14,8 @@ export abstract class AuthInclusiveService {
 
         try {
             const payload: any = verify(token, constants.jwtSecret, { algorithms: ["HS512"] });
-            const authUsername = payload.subject;
+            const authUsername = payload.sub;
+            console.log(`token payload: ${JSON.stringify(payload)}`);
 
             return { authUsername: authUsername, authHeader: authHeader(token) };
         } catch(error) {

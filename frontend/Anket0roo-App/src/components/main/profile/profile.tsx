@@ -9,7 +9,7 @@ import {
     Theme,
     Toolbar,
     Tab,
-    Typography, useTheme,
+    Typography, useTheme, Button,
 } from "@material-ui/core";
 import MuiAlert from '@material-ui/lab/Alert';
 import MenuIcon from '@material-ui/icons/Menu';
@@ -26,6 +26,9 @@ import {OwnQuestionnaires} from "./own_questionnaires";
 import {PublicQuestionnaires} from "./public_questionnaires";
 import {TabPanel} from "../../../layout/tab_panel";
 import SwipeableViews from "react-swipeable-views";
+import ExitToAppIcon from '@material-ui/icons/ExitToApp';
+import {useNavigate} from "react-router";
+import axios from "axios";
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -37,6 +40,10 @@ const useStyles = makeStyles((theme: Theme) =>
         },
         title: {
             flexGrow: 1,
+        },
+        button: {
+            marginRight: "auto",
+            margin: theme.spacing(1),
         },
     }),
 );
@@ -73,6 +80,7 @@ export const Profile: React.FC = () => {
     };
 
     const authContext = useAuthContext();
+    const navigate = useNavigate();
 
     const onSnackbarClose = (event?: React.SyntheticEvent, reason?: string) => {
         if (reason === 'clickaway') {
@@ -97,13 +105,13 @@ export const Profile: React.FC = () => {
                     // reauth on every error; error handling 100
                     authContext.logout()
                 }).then((response) => {
-                    if(response && response.data.username) {
-                        setProfileName(response.data.username);
-                        setUser(plainToClass(User, JSON.parse(response.data), { excludeExtraneousValues: true }));
-                    } else {
-                        setSnackBarOpen(true)
-                    }
-                });
+                if (response && response.data.username) {
+                    setProfileName(response.data.username);
+                    setUser(plainToClass(User, response.data, {excludeExtraneousValues: true}));
+                } else {
+                    setSnackBarOpen(true)
+                }
+            });
         }
     }, [user]);
 
@@ -119,6 +127,18 @@ export const Profile: React.FC = () => {
                         <Typography variant="h6" className={classes.title}>
                             {profileName ? <div>Your Profile, {profileName}</div> : <div>Your Profile</div>}
                         </Typography>
+                        <Button
+                            variant="outlined"
+                            color="primary"
+                            className={classes.button}
+                            startIcon={<ExitToAppIcon />}
+                            onClick={(event) => {
+                                authContext.logout();
+                                navigate("/login", { replace: true });
+                            }}
+                        >
+                            Logout
+                        </Button>
                     </Toolbar>
                     <Tabs
                         value={tabValue}
@@ -129,8 +149,8 @@ export const Profile: React.FC = () => {
                         aria-label="Your Questionnaires and Public Questionnaires"
                         centered
                     >
-                        <Tab label="Item One" {...tabProps(0)} />
-                        <Tab label="Item Two" {...tabProps(1)} />
+                        <Tab label="Your Questionnaires" {...tabProps(0)} />
+                        <Tab label="Public Questionnaires" {...tabProps(1)} />
                     </Tabs>
                 </AppBar>
             </UserContext.Provider>

@@ -12,6 +12,7 @@ import MailIcon from '@material-ui/icons/Mail';
 import {capitalize, Icon, SvgIcon} from "@material-ui/core";
 import {OverridableComponent} from "@material-ui/core/OverridableComponent";
 import {SvgIconTypeMap} from "@material-ui/core/SvgIcon/SvgIcon";
+import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 
 const useStyles = makeStyles({
     list: {
@@ -35,28 +36,31 @@ interface SwipeableLeftTemporaryNavDrawerProps {
 export const SwipeableLeftTemporaryNavDrawer: React.FC<SwipeableLeftTemporaryNavDrawerProps> = ({ open, toggleDrawer, routes }) => {
     const classes = useStyles();
 
+    // FIXME: Drawer dismissal on click outside (not working)
     return (
-        <SwipeableDrawer
-            anchor={'left'}
-            open={open}
-            onClose={(props: any, context?: any) => toggleDrawer(false)}
-            onOpen={(props: any, context?: any) => toggleDrawer(true)}
-        >
-            <div
-                className={classes.list}
-                role="presentation"
-                onClick={(props: any, context?: any) => toggleDrawer(false)}
-                onKeyDown={(props: any, context?: any) => toggleDrawer(false)}
+        <ClickAwayListener onClickAway={(event) => toggleDrawer(false)}>
+            <SwipeableDrawer
+                anchor={'left'}
+                open={open}
+                onClose={(props: any, context?: any) => toggleDrawer(false)}
+                onOpen={(props: any, context?: any) => toggleDrawer(true)}
             >
-                <List>
-                    {Array.from(routes).map((pair: [string, () => JSX.Element]) => (
-                        <ListItem button key={pair[0]}>
-                            <ListItemIcon>{pair[1]()}</ListItemIcon>
-                            <ListItemText primary={snakeToTitle(pair[0])} />
-                        </ListItem>
-                    ))}
-                </List>
-            </div>
-        </SwipeableDrawer>
+                <div
+                    className={classes.list}
+                    role="presentation"
+                    onClick={(props: any, context?: any) => toggleDrawer(false)}
+                    onKeyDown={(props: any, context?: any) => toggleDrawer(false)}
+                >
+                    <List>
+                        {Array.from(routes).map((pair: [string, () => JSX.Element]) => (
+                            <ListItem button key={pair[0]}>
+                                <ListItemIcon>{pair[1]()}</ListItemIcon>
+                                <ListItemText primary={snakeToTitle(pair[0])} />
+                            </ListItem>
+                        ))}
+                    </List>
+                </div>
+            </SwipeableDrawer>
+        </ClickAwayListener>
     );
 }

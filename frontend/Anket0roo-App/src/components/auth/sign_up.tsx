@@ -11,7 +11,7 @@ import {
     TextField,
     Typography
 } from "@material-ui/core";
-import {Link} from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
 import {LockOutlined} from "@material-ui/icons";
 import {Controller, useForm} from "react-hook-form";
 import {useAuthContext} from "../../context/auth_context";
@@ -43,22 +43,26 @@ interface SignUpProps {
     email: string;
 }
 
-// TODO: Replace w/ hook form validators & stuff
 export const SignUp: React.FC = () => {
     const classes = useStyles();
 
-    const { handleSubmit, control, formState: { errors } } = useForm<SignUpProps>();
+    const { handleSubmit, reset, control, formState: { errors } } = useForm<SignUpProps>();
     const authContext = useAuthContext();
+    const navigate = useNavigate();
 
     const [signUpError, setSignUpError] = useState('');
 
     const onSubmit = ({username, password, email}: SignUpProps) => {
         authService.signUp(email, password, username)
             .catch((error) => {
+            console.log(error);
+            reset({ username: '', password: '', email: '' },
+                { keepErrors: true, keepDirty: true });
             setSignUpError("Something went wrong! Please try again!");
         }).then((response) => {
             if(response && response?.data.token) {
                 authContext.login(response.data.token);
+                navigate("/profile", { replace: true });
             } else {
                 setSignUpError("Invalid response! Please try again.");
             }
@@ -73,7 +77,7 @@ export const SignUp: React.FC = () => {
                     <LockOutlined />
                 </Avatar>
                 <Typography component="h1" variant="h5">
-                    Sign in
+                    Sign up
                 </Typography>
                 <form className={classes.form} onSubmit={handleSubmit(onSubmit)}>
                     <FormControl fullWidth variant="outlined">
@@ -166,7 +170,7 @@ export const SignUp: React.FC = () => {
                     </Button>
                     <Grid container>
                         <Grid item>
-                            <Link to="login">
+                            <Link to="/login">
                                 {"Don't have an account? Sign Up"}
                             </Link>
                         </Grid>

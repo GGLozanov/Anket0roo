@@ -12,9 +12,14 @@ import {verify} from "jsonwebtoken";
 WebFont.load({google: {families: ["Roboto:300,400,500"]}});
 
 export const App: React.FC = () => {
-    const [token, setToken] = useState(null);
+    const [token, setToken] = useState(localStorage.getItem(constants.tokenKey));
+
+    // navigation actions SHOULD be located here
+    // but circular dependency of router to `useNavigate` hook with AuthContext makes this somewhat not-doable for now
+    // simple use case so just suffix each call to login with the corresponding navigation action
 
     const login = (token: string) => {
+        console.log("Logging in");
         setToken(token);
         localStorage.setItem(
             constants.tokenKey,
@@ -23,6 +28,7 @@ export const App: React.FC = () => {
     }
 
     const logout = () => {
+        console.log("Logging out");
         setToken(null);
         localStorage.removeItem(constants.tokenKey);
     }
@@ -31,27 +37,23 @@ export const App: React.FC = () => {
     try {
         isLoggedIn = !!token;
         if(isLoggedIn) {
-            verify(token, constants.jwtSecret);
+            verify(token, constants.jwtSecret, { algorithms: ["HS512"] });
         }
     } catch(ex) {
+        console.log(ex);
         isLoggedIn = false
     }
 
+    console.log(`token: ${token}`);
+    console.log(`logged in: ${isLoggedIn}`);
+
     return (
         <ThemeProvider theme={mainTheme}>
-            <AppRouter>
-                <AuthContext.Provider value={{isLoggedIn: isLoggedIn,
-                    token: token, login: (token: string) => {
-                        const navigate = useNavigate();
-                        login(token);
-                        navigate("profile", { replace: true });
-                    }, logout: () => {
-                        const navigate = useNavigate();
-                        logout();
-                        navigate("login", { replace: true });
-                    }}}>
-                </AuthContext.Provider>
-            </AppRouter>
+            <AuthContext.Provider value={{isLoggedIn: isLoggedIn,
+                token: token, login: login, logout: logout}}>
+                <AppRouter loggedIn={isLoggedIn}>
+                </AppRouter>
+            </AuthContext.Provider>
         </ThemeProvider>
     );
 }

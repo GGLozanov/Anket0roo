@@ -15,7 +15,7 @@ export const TabPanel: React.FC<TabPanelProps> = ({children, index, value}: TabP
             aria-labelledby={`full-width-tab-${index}`}
         >
             {value === index && (
-                {children}
+                children
             )}
         </div>
     );

@@ -19,8 +19,8 @@ class Anket0rooApplication {
 	@Value("\${server.servlet.context-path}")
 	private val contextPath: String? = null
 
-	@Value("\${server.port}")
-	private val port: String? = null
+	@Value("\${client.url}")
+	private val clientUrl: String? = null
 
 	@Bean
 	fun passwordEncoder(): BCryptPasswordEncoder {
@@ -28,12 +28,13 @@ class Anket0rooApplication {
 	}
 
 	@Bean
-	fun corsConfigurer(): WebMvcConfigurer? {
+	fun corsConfigurer(): WebMvcConfigurer {
 		return object : WebMvcConfigurer {
 			override fun addCorsMappings(registry: CorsRegistry) {
-				val host = InetAddress.getLocalHost().canonicalHostName
-				val appUrl = java.lang.String.format("http://%s:%s%s", host, port, contextPath)
-				registry.addMapping(contextPath!!).allowedOrigins(appUrl)
+				// val host = InetAddress.getLocalHost().hostAddress
+				// val appUrl = java.lang.String.format("http://localhost:%s%s", port, contextPath)
+				println(clientUrl)
+				registry.addMapping(contextPath!!).allowedOrigins(clientUrl)
 			}
 		}
 	}

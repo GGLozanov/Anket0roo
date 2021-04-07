@@ -6,6 +6,7 @@ class UserService extends AuthInclusiveService {
     getUser(): Promise<AxiosResponse> {
         const authUsernameHeaderPair = this.getAuthUsernameAndHeaderFromContextToken();
 
+        console.log('Header: ' + JSON.stringify(authUsernameHeaderPair.authHeader));
         return axios.get(constants.apiURL + `users/${authUsernameHeaderPair.authUsername}`,
             { headers: authUsernameHeaderPair.authHeader });
     }

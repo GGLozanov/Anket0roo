@@ -11,7 +11,7 @@ import {
     Typography
 } from "@material-ui/core";
 
-import {Link} from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
 import {useContext, useState} from "react";
 import {LockOutlined} from "@material-ui/icons";
 import {Controller, useForm} from "react-hook-form";
@@ -51,17 +51,22 @@ export const Login: React.FC = () => {
     const [loginError, setLoginError] = useState('');
 
     const authContext = useAuthContext();
+    const navigate = useNavigate();
 
     const onSubmit = ({password, username}: AuthProps) => {
         // valid data's here
         authService.login(username, password)
             .catch((error) => {
+            console.log(error);
             reset({ username: '', password: '' },
-                { keepErrors: true, keepDirty: true });
+            { keepErrors: true, keepDirty: true });
             setLoginError("There was an error! Please try again.");
         }).then((response) => {
             if(response && response?.data.token) {
+                console.log(`returned token: ${response.data.token}`)
                 authContext.login(response.data.token);
+                navigate("/profile", { replace: true });
+                setLoginError(null);
             } else {
                 setLoginError("Invalid response! Please try again.");
             }
@@ -76,7 +81,7 @@ export const Login: React.FC = () => {
                     <LockOutlined />
                 </Avatar>
                 <Typography component="h1" variant="h5">
-                    Sign up
+                    Sign in
                 </Typography>
                 <form className={classes.form} onSubmit={handleSubmit(onSubmit)}>
                     <FormControl fullWidth variant="outlined">
@@ -137,11 +142,11 @@ export const Login: React.FC = () => {
                         color="primary"
                         className={classes.submit}
                     >
-                        Sign Up
+                        Sign In
                     </Button>
                     <Grid container justify="flex-end">
                         <Grid item>
-                            <Link to="signup" replace={true}>
+                            <Link to="/signup" replace={true}>
                                 Already have an account? Sign in
                             </Link>
                         </Grid>

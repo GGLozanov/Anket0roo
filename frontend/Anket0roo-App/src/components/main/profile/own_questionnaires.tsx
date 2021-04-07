@@ -24,7 +24,7 @@ export const OwnQuestionnaires: React.FC = () => {
 
     return (
         <GridList cols={3} className={classes.grid}>
-            {userContext.user.questionnaires.map((questionnaire) =>
+            {userContext.user?.questionnaires.map((questionnaire) =>
                 <GridListTile key={questionnaire.id}>
                     <QuestionnaireCard questionnaire={questionnaire} onCardClick={handleCardClick} />
                 </GridListTile>

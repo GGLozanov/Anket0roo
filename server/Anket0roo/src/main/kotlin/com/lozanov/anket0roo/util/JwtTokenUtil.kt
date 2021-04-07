@@ -32,7 +32,8 @@ class JwtTokenUtil : Serializable {
     }
 
     // for retrieveing any information from token we will need the secret key
-    private fun getAllClaimsFromToken(token: String?): Claims = Jwts.parser().setSigningKey(secret).parseClaimsJws(token).body
+    private fun getAllClaimsFromToken(token: String?): Claims = Jwts.parser()
+            .setSigningKey(secret!!.byteInputStream().readAllBytes()).parseClaimsJws(token).body
 
     // check if the token has expired
     private fun isTokenExpired(token: String?): Boolean {
@@ -67,7 +68,7 @@ class JwtTokenUtil : Serializable {
     private fun doGenerateToken(claims: MutableMap<String, Any>, subject: String? = null): String =
             Jwts.builder().setClaims(claims).setSubject(subject).setIssuedAt(Date(System.currentTimeMillis()))
                     .setExpiration(Date(System.currentTimeMillis() + JWT_TOKEN_VALIDITY * 1000))
-                    .signWith(SignatureAlgorithm.HS512, secret).compact()
+                    .signWith(SignatureAlgorithm.HS512, secret!!.byteInputStream().readAllBytes()).compact()
 
 
     //validate token
