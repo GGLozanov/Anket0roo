@@ -1,6 +1,7 @@
 const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const webpack = require('webpack')
 
 module.exports = {
     entry: {
@@ -9,8 +10,9 @@ module.exports = {
     target: 'web',
     mode: "development",
     output: {
-        filename: '[name].js',
-        path: path.resolve(__dirname, 'dist')
+        path: path.resolve(__dirname, "build"),
+        filename: "bundle.js",
+        publicPath: '/'
     },
     resolve: {
         extensions: [".js", ".jsx", ".json", ".ts", ".tsx"],
@@ -22,13 +24,26 @@ module.exports = {
         }
     },
     devServer: {
+        contentBase: path.join(__dirname, "build"),
+        compress: true,
+        historyApiFallback: true,
         port: 8000
     },
     module: {
         rules: [
             {
-                test: /\.(ts|tsx)$/,
-                loader: "awesome-typescript-loader",
+                test: /\.(ts|js)x?$/,
+                exclude: /node_modules/,
+                use: {
+                    loader: "babel-loader",
+                    options: {
+                        presets: [
+                            "@babel/preset-env",
+                            "@babel/preset-react",
+                            "@babel/preset-typescript",
+                        ],
+                    },
+                },
             },
             {
                 test: /\.(svg)$/,
@@ -53,4 +68,17 @@ module.exports = {
             },
         ],
     },
+    plugins: [
+        new HtmlWebpackPlugin({
+            template: __dirname + '/src/components/index.html',
+            filename: 'index.html',
+            inject: 'body'
+        }),
+        new MiniCssExtractPlugin({
+            filename: "./src/components/index.css",
+        }),
+        new webpack.ProvidePlugin({
+            process: 'process/browser',
+        }),
+    ],
 };

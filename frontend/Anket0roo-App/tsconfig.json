@@ -7,11 +7,12 @@
     "preserveConstEnums": true,
     "removeComments": true,
     "sourceMap": true,
+    "rootDir": ".",
     "target": "es6",
     "allowSyntheticDefaultImports": true,
-    "experimentalDecorators": true
+    "experimentalDecorators": true,
   },
   "include": [
-    "src/components/index.tsx"
+    "./src/**/**/\*"
   ]
 }

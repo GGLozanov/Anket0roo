@@ -166,7 +166,7 @@ export const SignUp: React.FC = () => {
                     </Button>
                     <Grid container>
                         <Grid item>
-                            <Link to="signup">
+                            <Link to="login">
                                 {"Don't have an account? Sign Up"}
                             </Link>
                         </Grid>

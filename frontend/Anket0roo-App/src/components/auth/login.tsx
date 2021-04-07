@@ -141,7 +141,7 @@ export const Login: React.FC = () => {
                     </Button>
                     <Grid container justify="flex-end">
                         <Grid item>
-                            <Link to="login">
+                            <Link to="signup" replace={true}>
                                 Already have an account? Sign in
                             </Link>
                         </Grid>
