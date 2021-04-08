@@ -1,6 +1,6 @@
 import * as React from "react";
 import {useUserContext} from "../../../context/user_context";
-import {GridList, GridListTile, makeStyles} from "@material-ui/core";
+import {Box, GridList, GridListTile, makeStyles} from "@material-ui/core";
 import {QuestionnaireCard} from "../../../layout/questionnaire_card";
 import {Questionnaire} from "../../../model/questionnaire";
 import {useNavigate} from "react-router";
@@ -18,8 +18,9 @@ export const OwnQuestionnaires: React.FC = () => {
     const navigate = useNavigate();
 
     const handleCardClick = (questionnaire: Questionnaire) => {
-        // navigate to admin page (do the opposite in public_questionnaires component)
-        navigate(`questionnaires/fill/${questionnaire.id}`)
+        // navigate to admin page ONLY with link
+        // navigate to fill out form otherwise
+        navigate(`/questionnaires/fill/${questionnaire.id}`, { replace: true });
     }
 
     return (
@@ -28,7 +29,7 @@ export const OwnQuestionnaires: React.FC = () => {
                 <GridListTile key={questionnaire.id}>
                     <QuestionnaireCard questionnaire={questionnaire} onCardClick={handleCardClick} />
                 </GridListTile>
-            )}
+            ) ?? <Box/>}
         </GridList>
     );
 }

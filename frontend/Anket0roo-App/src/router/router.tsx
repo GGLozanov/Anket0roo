@@ -29,15 +29,13 @@ const Routes: React.FC<AuthRouteProps> = ({ loggedIn }: AuthRouteProps) => {
         { path: 'signup', element: <SignUp /> },
         { path: 'profile',
             element: <AuthComponentWrapper componentToRenderOnAuth={<Profile />} isLoggedIn={loggedIn} />,
-            children: [
-                { path: 'questionnaires',
-                    element: <AuthComponentWrapper componentToRenderOnAuth={<OwnQuestionnaires />} isLoggedIn={loggedIn} />
-                },
-                { path: 'public_questionnaires', element: <AuthComponentWrapper componentToRenderOnAuth={<PublicQuestionnaires />} isLoggedIn={loggedIn} /> },
-                { path: 'create_questionnaire', element: <AuthComponentWrapper componentToRenderOnAuth={<CreateQuestionnaire />} isLoggedIn={loggedIn} /> },
-                { path: 'create_question', element: <AuthComponentWrapper componentToRenderOnAuth={<CreateQuestion />} isLoggedIn={loggedIn} /> }
-            ]
         },
+        { path: 'profile/questionnaires',
+            element: <AuthComponentWrapper componentToRenderOnAuth={<OwnQuestionnaires />} isLoggedIn={loggedIn} />
+        },
+        { path: 'profile/public_questionnaires', element: <AuthComponentWrapper componentToRenderOnAuth={<PublicQuestionnaires />} isLoggedIn={loggedIn} /> },
+        { path: 'profile/create_questionnaire', element: <AuthComponentWrapper componentToRenderOnAuth={<CreateQuestionnaire />} isLoggedIn={loggedIn} /> },
+        { path: 'profile/create_question', element: <AuthComponentWrapper componentToRenderOnAuth={<CreateQuestion />} isLoggedIn={loggedIn} /> },
         { path: 'questionnaires/fill/:id', element: <AuthComponentWrapper componentToRenderOnAuth={<FillQuestionnairePublic />} isLoggedIn={loggedIn} /> },
         { path: 'questionnaires/:tokenUrl', element: <FillQuestionnaire /> },
         { path: 'questionnaires/admin/:tokenUrl', element: <ViewQuestionnaireResults /> },

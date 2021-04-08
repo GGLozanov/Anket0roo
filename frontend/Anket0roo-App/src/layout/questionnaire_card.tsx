@@ -22,7 +22,7 @@ const useStyles = makeStyles({
 
 interface QuestionnaireCardProps {
     questionnaire: Questionnaire;
-    onCardClick: (questionnaire: Questionnaire) => void;
+    onCardClick?: (questionnaire: Questionnaire) => void;
 }
 
 export const QuestionnaireCard: React.FC<QuestionnaireCardProps> = ({ questionnaire, onCardClick }: QuestionnaireCardProps) => {

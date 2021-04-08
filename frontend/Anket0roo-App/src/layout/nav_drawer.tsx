@@ -27,10 +27,15 @@ function snakeToTitle(src: string): string {
     return capitalize(src.replace("_", " "));
 }
 
+interface DrawerListItemProps {
+    gen: () => JSX.Element;
+    onDrawerItemClick: (event: React.KeyboardEvent | React.MouseEvent) => void
+}
+
 interface SwipeableLeftTemporaryNavDrawerProps {
     open: boolean;
     toggleDrawer: (open: boolean) => void;
-    routes: Map<string, () => JSX.Element>;
+    routes: Map<string, DrawerListItemProps>;
 }
 
 export const SwipeableLeftTemporaryNavDrawer: React.FC<SwipeableLeftTemporaryNavDrawerProps> = ({ open, toggleDrawer, routes }) => {
@@ -52,9 +57,9 @@ export const SwipeableLeftTemporaryNavDrawer: React.FC<SwipeableLeftTemporaryNav
                     onKeyDown={(props: any, context?: any) => toggleDrawer(false)}
                 >
                     <List>
-                        {Array.from(routes).map((pair: [string, () => JSX.Element]) => (
-                            <ListItem button key={pair[0]}>
-                                <ListItemIcon>{pair[1]()}</ListItemIcon>
+                        {Array.from(routes).map((pair: [string, DrawerListItemProps]) => (
+                            <ListItem button key={pair[0]} onClick={pair[1].onDrawerItemClick}>
+                                <ListItemIcon>{pair[1].gen()}</ListItemIcon>
                                 <ListItemText primary={snakeToTitle(pair[0])} />
                             </ListItem>
                         ))}

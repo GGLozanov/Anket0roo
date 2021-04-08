@@ -69,12 +69,14 @@ export const Profile: React.FC = () => {
     const toggleDrawer = (open: boolean) => (
         event: React.KeyboardEvent | React.MouseEvent,
     ) => {
+        console.log("Toggling drawer w/ state " + open);
         if (event && event.type === 'keydown' &&
             ((event as React.KeyboardEvent).key === 'Tab' ||
                 (event as React.KeyboardEvent).key === 'Shift')
         ) {
             return;
         }
+        console.log("ACTUALLY Toggling drawer w/ state " + open);
 
         setOpen(open);
     };
@@ -100,7 +102,7 @@ export const Profile: React.FC = () => {
 
     useEffect(() => {
         if(user == null) {
-            userService.getUser()
+            userService.getUser(authContext)
                 .catch((error) => {
                     // reauth on every error; error handling 100
                     authContext.logout()
@@ -120,7 +122,7 @@ export const Profile: React.FC = () => {
             <UserContext.Provider value={{user: user}}>
                 <AppBar position="static" color={"default"}>
                     <Toolbar>
-                        <IconButton edge="start" className={classes.menuButton} onClick={toggleDrawer(!open)}
+                        <IconButton edge="start" className={classes.menuButton} onClick={toggleDrawer(true)}
                                     color="inherit" aria-label="menu">
                             <MenuIcon />
                         </IconButton>
@@ -159,15 +161,17 @@ export const Profile: React.FC = () => {
                     Something went wrong! Please login again!</MuiAlert>
             </Snackbar>
             <SwipeableLeftTemporaryNavDrawer routes={new Map([
-                    ["create_questionnaire", () => <CreateIcon />],
-                    ["create_question", () => <QuestionAnswerIcon />],
+                    ["create_questionnaire", { gen: () => <CreateIcon />, onDrawerItemClick:
+                            (event) => navigate("create_questionnaire", { replace: true })}],
+                    ["create_question", { gen: () => <QuestionAnswerIcon />, onDrawerItemClick:
+                            (event) => navigate("create_question", { replace: true })}],
                 ])}  open={open} toggleDrawer={toggleDrawer}/>
             <SwipeableViews axis={theme.direction === 'rtl' ? 'x-reverse' : 'x'}
                             index={tabValue}
                             onChangeIndex={handleSwipeableViewIndexChange}>
                 <TabPanel index={0} value={tabValue} children={<OwnQuestionnaires />} />
                 <TabPanel index={1} value={tabValue} children={<PublicQuestionnaires />} />
-                </SwipeableViews>
+            </SwipeableViews>
         </div>
     );
 }

@@ -1,15 +1,15 @@
 import {constants} from "../util/consts";
 import authHeader from "../util/auth_header";
 import {verify} from "jsonwebtoken";
+import {AuthContext, AuthContextProps, useAuthContext} from "../context/auth_context";
 
 interface AuthHeaderUsernameBundle {
     authUsername: string;
     authHeader: object;
 }
 
-// TODO: Inject a unified error handler that redirects to login page here, even if it's kinda injecting the UI layer into the data manip. one
 export abstract class AuthInclusiveService {
-    protected getAuthUsernameAndHeaderFromContextToken(): AuthHeaderUsernameBundle {
+    protected getAuthUsernameAndHeaderFromContextToken(authContext: AuthContextProps): AuthHeaderUsernameBundle {
         const token: string = localStorage.getItem(constants.tokenKey);
 
         try {
@@ -19,7 +19,8 @@ export abstract class AuthInclusiveService {
 
             return { authUsername: authUsername, authHeader: authHeader(token) };
         } catch(error) {
-            throw new InvalidTokenError(error.toString());
+            authContext.logout();
+            throw new InvalidTokenError(error.toString()); // for additional component-level error handling (snackbar display, blabla)
         }
     }
 }

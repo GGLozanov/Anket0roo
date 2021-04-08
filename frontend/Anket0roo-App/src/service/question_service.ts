@@ -5,10 +5,11 @@ import authHeader from "../util/auth_header";
 import {questionnairesMediaPath} from "../util/question_image_regex";
 import {constants} from "../util/consts";
 import {AuthInclusiveService} from "./auth_inclusive_service";
+import {AuthContextProps} from "../context/auth_context";
 
 class QuestionService extends AuthInclusiveService {
-    createQuestion(question: Question, file?: File): Promise<AxiosResponse> {
-        const authUsernameHeaderPair = this.getAuthUsernameAndHeaderFromContextToken();
+    createQuestion(authContext: AuthContextProps, question: Question, file?: File): Promise<AxiosResponse> {
+        const authUsernameHeaderPair = this.getAuthUsernameAndHeaderFromContextToken(authContext);
         const formData = new FormData();
 
         if(file !== null && file !== undefined) {
@@ -27,4 +28,4 @@ class QuestionService extends AuthInclusiveService {
 
 }
 
-export const questionnaireService = new QuestionService();
+export const questionService = new QuestionService();
