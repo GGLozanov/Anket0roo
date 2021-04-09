@@ -13,7 +13,8 @@ class MediaController(
     fun getQuestionFile(@PathVariable filename: String): ResponseEntity<*> {
         val file = mediaService.load(filename)
         return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getFilename() + "\"").body(file);
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.filename + "\"")
+                .body(file);
     }
 
     companion object {

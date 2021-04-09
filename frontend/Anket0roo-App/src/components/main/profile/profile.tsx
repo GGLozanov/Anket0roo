@@ -16,7 +16,7 @@ import MenuIcon from '@material-ui/icons/Menu';
 import CreateIcon from "@material-ui/icons/Create";
 import QuestionAnswerIcon from "@material-ui/Icons/QuestionAnswer";
 import {Component, useEffect, useState} from "react";
-import {UserContext} from "../../../context/user_context";
+import {UserContext, useUserContext} from "../../../context/user_context";
 import {userService} from "../../../service/user_service";
 import {useAuthContext} from "../../../context/auth_context";
 import {plainToClass} from "class-transformer";
@@ -59,7 +59,6 @@ export const Profile: React.FC = () => {
     const classes = useStyles();
     const theme = useTheme();
 
-    const [snackbarOpen, setSnackBarOpen] = useState(false);
     const [user, setUser] = useState(null);
     const [profileName, setProfileName] = useState(null);
 
@@ -83,14 +82,6 @@ export const Profile: React.FC = () => {
 
     const authContext = useAuthContext();
     const navigate = useNavigate();
-
-    const onSnackbarClose = (event?: React.SyntheticEvent, reason?: string) => {
-        if (reason === 'clickaway') {
-            return;
-        }
-
-        setSnackBarOpen(false);
-    }
     
     const handleSwipeableViewIndexChange = (idx: number) => {
         setTabValue(idx);
@@ -100,71 +91,48 @@ export const Profile: React.FC = () => {
         setTabValue(newIdx);
     }
 
-    useEffect(() => {
-        if(user == null) {
-            userService.getUser(authContext)
-                .catch((error) => {
-                    // reauth on every error; error handling 100
-                    authContext.logout()
-                }).then((response) => {
-                if (response && response.data.username) {
-                    setProfileName(response.data.username);
-                    setUser(plainToClass(User, response.data, {excludeExtraneousValues: true}));
-                } else {
-                    setSnackBarOpen(true)
-                }
-            });
-        }
-    }, [user]);
-
     return (
         <div className={classes.root}>
-            <UserContext.Provider value={{user: user}}>
-                <AppBar position="static" color={"default"}>
-                    <Toolbar>
-                        <IconButton edge="start" className={classes.menuButton} onClick={toggleDrawer(true)}
-                                    color="inherit" aria-label="menu">
-                            <MenuIcon />
-                        </IconButton>
-                        <Typography variant="h6" className={classes.title}>
-                            {profileName ? <div>Your Profile, {profileName}</div> : <div>Your Profile</div>}
-                        </Typography>
-                        <Button
-                            variant="outlined"
-                            color="primary"
-                            className={classes.button}
-                            startIcon={<ExitToAppIcon />}
-                            onClick={(event) => {
-                                authContext.logout();
-                                navigate("/login", { replace: true });
-                            }}
-                        >
-                            Logout
-                        </Button>
-                    </Toolbar>
-                    <Tabs
-                        value={tabValue}
-                        onChange={handleTabChange}
-                        indicatorColor="primary"
-                        textColor="primary"
-                        variant="fullWidth"
-                        aria-label="Your Questionnaires and Public Questionnaires"
-                        centered
+            <AppBar position="static" color={"default"}>
+                <Toolbar>
+                    <IconButton edge="start" className={classes.menuButton} onClick={toggleDrawer(true)}
+                                color="inherit" aria-label="menu">
+                        <MenuIcon />
+                    </IconButton>
+                    <Typography variant="h6" className={classes.title}>
+                        {profileName ? <div>Your Profile, {profileName}</div> : <div>Your Profile</div>}
+                    </Typography>
+                    <Button
+                        variant="outlined"
+                        color="primary"
+                        className={classes.button}
+                        startIcon={<ExitToAppIcon />}
+                        onClick={(event) => {
+                            authContext.logout();
+                            navigate("/login", { replace: true });
+                        }}
                     >
-                        <Tab label="Your Questionnaires" {...tabProps(0)} />
-                        <Tab label="Public Questionnaires" {...tabProps(1)} />
-                    </Tabs>
-                </AppBar>
-            </UserContext.Provider>
-            <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={onSnackbarClose}>
-                <MuiAlert elevation={6} variant="filled" onClose={onSnackbarClose} severity="error">
-                    Something went wrong! Please login again!</MuiAlert>
-            </Snackbar>
+                        Logout
+                    </Button>
+                </Toolbar>
+                <Tabs
+                    value={tabValue}
+                    onChange={handleTabChange}
+                    indicatorColor="primary"
+                    textColor="primary"
+                    variant="fullWidth"
+                    aria-label="Your Questionnaires and Public Questionnaires"
+                    centered
+                >
+                    <Tab label="Your Questionnaires" {...tabProps(0)} />
+                    <Tab label="Public Questionnaires" {...tabProps(1)} />
+                </Tabs>
+            </AppBar>
             <SwipeableLeftTemporaryNavDrawer routes={new Map([
                     ["create_questionnaire", { gen: () => <CreateIcon />, onDrawerItemClick:
-                            (event) => navigate("create_questionnaire", { replace: true })}],
+                            (event) => navigate("create_questionnaire")}],
                     ["create_question", { gen: () => <QuestionAnswerIcon />, onDrawerItemClick:
-                            (event) => navigate("create_question", { replace: true })}],
+                            (event) => navigate("create_question")}],
                 ])}  open={open} toggleDrawer={toggleDrawer}/>
             <SwipeableViews axis={theme.direction === 'rtl' ? 'x-reverse' : 'x'}
                             index={tabValue}

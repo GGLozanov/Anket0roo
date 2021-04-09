@@ -5,7 +5,7 @@ import {AuthContextProps} from "../context/auth_context";
 
 class UserService extends AuthInclusiveService {
     getUser(authContext: AuthContextProps): Promise<AxiosResponse> {
-        const authUsernameHeaderPair = this.getAuthUsernameAndHeaderFromContextToken();
+        const authUsernameHeaderPair = this.getAuthUsernameAndHeaderFromContextToken(authContext);
 
         console.log('Header: ' + JSON.stringify(authUsernameHeaderPair.authHeader));
         return axios.get(constants.apiURL + `users/${authUsernameHeaderPair.authUsername}`,

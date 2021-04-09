@@ -14,16 +14,16 @@ class QuestionService extends AuthInclusiveService {
 
         if(file !== null && file !== undefined) {
             formData.append("image", file);
-            question.question += ` ${constants.apiURL + questionnairesMediaPath + `${file.name}`}`;
-        }
+            question.question += ` ${constants.apiURL + questionnairesMediaPath + `/${file.name}`}`;
+        } else formData.append("image", null)
 
+        console.log(`Question send: ${JSON.stringify(classToPlain(question))}`);
+        console.log(`Headers: ${JSON.stringify({ ...authUsernameHeaderPair.authHeader, ...{"Content-Type": "multipart/form-data"} })}`);
         formData.append("question", JSON.stringify(classToPlain(question)));
-        return axios({
-            method: "post",
-            url: constants.apiURL + `users/${authUsernameHeaderPair.authUsername}/questions`,
-            data: formData,
-            headers: { ...authUsernameHeaderPair.authHeader, ...{"Content-Type": "multipart/form-data"} }
-        })
+        return axios.post(constants.apiURL + `users/${authUsernameHeaderPair.authUsername}/questions`, formData, {
+            headers: { ...authUsernameHeaderPair.authHeader, ...{
+                "Content-Type": "multipart/form-data", 'Accept': 'application/json'} }
+        });
     }
 
 }

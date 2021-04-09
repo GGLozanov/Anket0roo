@@ -5,7 +5,7 @@ export class Answer extends IdModel {
     @Expose()
     answer: string;
 
-    constructor(id: number, answer: string) {
+    constructor(answer: string, id?: number) {
         super(id);
         this.answer = answer;
     }

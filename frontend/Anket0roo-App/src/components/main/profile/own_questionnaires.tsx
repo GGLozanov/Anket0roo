@@ -20,6 +20,7 @@ export const OwnQuestionnaires: React.FC = () => {
     const handleCardClick = (questionnaire: Questionnaire) => {
         // navigate to admin page ONLY with link
         // navigate to fill out form otherwise
+        // TODO: IP/cookie check or whatever
         navigate(`/questionnaires/fill/${questionnaire.id}`, { replace: true });
     }
 

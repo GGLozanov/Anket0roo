@@ -8,11 +8,28 @@ import {useEffect, useState} from "react";
 import {constants} from "../util/consts";
 import {useNavigate} from "react-router";
 import {verify} from "jsonwebtoken";
+import {UserContext} from "../context/user_context";
+import {userService} from "../service/user_service";
+import {plainToClass} from "class-transformer";
+import {User} from "../model/user";
+import {Snackbar} from "@material-ui/core";
+import MuiAlert from "@material-ui/lab/Alert";
 
 WebFont.load({google: {families: ["Roboto:300,400,500"]}});
 
 export const App: React.FC = () => {
-    const [token, setToken] = useState(localStorage.getItem(constants.tokenKey));
+    const [token, setToken] = useState(localStorage.getItem(constants.tokenKey))
+    const [authUser, setAuthUser] = useState(null);
+
+    const [snackbarOpen, setSnackBarOpen] = useState(false); // global authentication state snackbar
+
+    const onSnackbarClose = (event?: React.SyntheticEvent, reason?: string) => {
+        if (reason === 'clickaway') {
+            return;
+        }
+
+        setSnackBarOpen(false);
+    }
 
     // navigation actions SHOULD be located here
     // but circular dependency of router to `useNavigate` hook with AuthContext makes this somewhat not-doable for now
@@ -44,16 +61,41 @@ export const App: React.FC = () => {
         isLoggedIn = false
     }
 
+    useEffect(() => {
+        if(authUser == null && isLoggedIn) {
+            userService.getUser({isLoggedIn: !!token, login: login, logout: logout, token: token }) // only need logout call
+            .catch((error) => {
+                // reauth on every error; error handling 100
+                logout()
+            }).then((response) => {
+                if (response && response.data.username) {
+                    setAuthUser(plainToClass(User, response.data, {excludeExtraneousValues: true}));
+                } else {
+                    setSnackBarOpen(true)
+                }
+            });
+        }
+    }, [authUser, isLoggedIn]);
+
     console.log(`token: ${token}`);
     console.log(`logged in: ${isLoggedIn}`);
 
     return (
         <ThemeProvider theme={mainTheme}>
-            <AuthContext.Provider value={{isLoggedIn: isLoggedIn,
-                token: token, login: login, logout: logout}}>
-                <AppRouter loggedIn={isLoggedIn}>
-                </AppRouter>
-            </AuthContext.Provider>
+            <UserContext.Provider value={{user: authUser, addQuestion:
+                    (question) => authUser?.questions?.push(question), addQuestionnaire:
+                    (questionnaire) => authUser?.questionnaires?.push(questionnaire),
+                    setUser: (user) => setAuthUser(user)}}>
+                <AuthContext.Provider value={{isLoggedIn: isLoggedIn,
+                    token: token, login: login, logout: logout}}>
+                    <AppRouter loggedIn={isLoggedIn}>
+                        <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={onSnackbarClose}>
+                            <MuiAlert elevation={6} variant="filled" onClose={onSnackbarClose} severity="error">
+                                Something went wrong with your authentication! Please login again!</MuiAlert>
+                        </Snackbar>
+                    </AppRouter>
+                </AuthContext.Provider>
+            </UserContext.Provider>
         </ThemeProvider>
     );
 }

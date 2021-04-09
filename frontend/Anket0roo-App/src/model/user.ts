@@ -15,7 +15,7 @@ export class User extends IdModel {
     @Expose()
     questions: Question[];
 
-    constructor(id: number, username: string, email: string, questionnaires: Questionnaire[], questions: Question[]) {
+    constructor(username: string, email: string, questionnaires: Questionnaire[], questions: Question[], id?: number) {
         super(id);
         this.username = username;
         this.email = email;

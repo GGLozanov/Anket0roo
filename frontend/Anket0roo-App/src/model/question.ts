@@ -8,12 +8,12 @@ export class Question extends IdModel {
     @Expose()
     answers: Answer[];
     @Expose()
-    answerId: number;
+    ownerId: number;
 
-    constructor(id: number, question: string, answers: Answer[], answerId: number) {
+    constructor(question: string, answers: Answer[], ownerId: number, id?: number) {
         super(id);
         this.question = question;
         this.answers = answers;
-        this.answerId = answerId;
+        this.ownerId = ownerId;
     }
 }
