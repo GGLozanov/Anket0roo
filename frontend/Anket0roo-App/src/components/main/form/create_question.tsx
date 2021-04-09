@@ -2,7 +2,7 @@ import * as React from "react";
 import {useEffect, useState} from "react";
 import ImageUploader from "react-images-upload";
 import { FixedSizeList } from "react-window";
-import {Button, Card, CardContent, FormControl, List, makeStyles, TextField} from "@material-ui/core";
+import {Button, Card, CardContent, FormControl, Grid, List, makeStyles, TextField} from "@material-ui/core";
 import {Controller, FieldArrayWithId, useFieldArray, useForm, useFormContext} from "react-hook-form";
 import {FieldArrayPath} from "react-hook-form/dist/types/utils";
 
@@ -19,18 +19,22 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
+interface AnswerFormProps {
+    answer: string;
+}
+
 interface CreateQuestionFormProps {
     question: string;
-    answers: string[];
+    answers: AnswerFormProps[];
 }
 
 export const CreateQuestion: React.FC = () => {
     const [chosenPicture, setChosenPicture] = useState(null);
     const classes = useStyles();
 
-    const form = useForm<CreateQuestionFormProps>({ defaultValues: { question: "", answers: [""] } });
+    const form = useForm<CreateQuestionFormProps>({ defaultValues: { question: "", answers: [{ answer: "" }] } });
     // @ts-ignore
-    const { fields, remove, append } = useFieldArray({ control: form.control, name: "answers" });
+    const { fields, remove, append } = useFieldArray<CreateQuestionFormProps>({ control: form.control, name: "answers" });
 
     const onDrop = (files: File[], pictures: string[]) => {
         setChosenPicture(files[0]);
@@ -38,10 +42,12 @@ export const CreateQuestion: React.FC = () => {
 
     const onSubmit = (data: CreateQuestionFormProps) => {
         console.log(JSON.stringify(data));
+
+        // success => remove errors & add question to user
     }
 
     const errors = form.formState.errors;
-    const question = form.watch("question");
+    console.log(JSON.stringify(fields))
 
     return (
         <Card>
@@ -53,7 +59,6 @@ export const CreateQuestion: React.FC = () => {
                             render={ ({ field }) =>
                                 <TextField
                                     {...field}
-                                    {...form.register("question")}
                                     margin="normal"
                                     name="question"
                                     variant="outlined"
@@ -86,29 +91,31 @@ export const CreateQuestion: React.FC = () => {
 
                     {fields.map((item,
                                   index: number) => {
-                        console.log(form.getValues("answers")?.[index]);
                         console.log(JSON.stringify(item));
                         // TODO: Null fallback w/ properly typed (QuestionCreateProps)
-                        const defaultValue =
-                            (form.getValues("answers") ?? [null])?.[index] // ?? item.answers[index];
+                        const values = form.getValues("answers");
+                        let defaultValue =
+                            values ? values[index].answer :
+                                (item.answer ? item.answer : "");
 
+                        console.log(errors.answers);
                         return (
                             <div>
                                 <Controller
                                     render={({ field }) => <TextField
                                         {...field}
                                         margin="normal"
-                                        name={`answers[${index}]`}
+                                        name={`answers[${index}].answer`}
                                         variant="outlined"
                                         required
                                         fullWidth
-                                        id={`${fields[index].id}`}
+                                        id={`${fields[index]?.id}`}
                                         label={`Answer ${index + 1}`}
-                                        helperText={errors.answers[index] ? errors.answers[index].message : null}
+                                        helperText={errors.answers?.[index] ? errors.answers[index].answer.message : null}
                                         autoComplete="name"
-                                        error={errors.answers[index] !== undefined} />
+                                        error={errors.answers?.[index]?.answer !== undefined} />
                                     }
-                                    name={`answers.${index}` as `answers.${number}`}
+                                    name={`answers.${index}.answer` as `answers.${number}.answer`}
                                     defaultValue={defaultValue}
                                     control={form.control}
                                     rules={{
@@ -123,7 +130,7 @@ export const CreateQuestion: React.FC = () => {
                                      color="primary"
                                      className={classes.submit}
                                      onClick={(event) =>
-                                         append({ answer: "", question: question ?? ""})}>Add Answer</Button>}
+                                         append({ answer: "" })}>Add Answer</Button>}
                             </div>
                         );
                     })}
