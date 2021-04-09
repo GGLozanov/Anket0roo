@@ -17,6 +17,9 @@ const useStyles = makeStyles((theme) => ({
     add: {
         margin: theme.spacing(1, 0, 2),
     },
+    answerField: {
+        display: 'flex',
+    }
 }));
 
 interface AnswerFormProps {
@@ -99,8 +102,9 @@ export const CreateQuestion: React.FC = () => {
                                 (item.answer ? item.answer : "");
 
                         console.log(errors.answers);
+                        console.log(index);
                         return (
-                            <div>
+                            <div className={classes.answerField}>
                                 <Controller
                                     render={({ field }) => <TextField
                                         {...field}
@@ -123,12 +127,20 @@ export const CreateQuestion: React.FC = () => {
                                         maxLength: 20
                                     }}
                                 />
+                                {index != 0 &&
+                                <Button
+                                    fullWidth
+                                    variant="contained"
+                                    className={classes.add}
+                                    color="primary"
+                                    onClick={(event) =>
+                                        remove(fields.indexOf(item.id))}>Remove Answer</Button>}
                                 {index == fields.length - 1 &&
                                 <Button
                                      fullWidth
                                      variant="contained"
+                                     className={classes.add}
                                      color="primary"
-                                     className={classes.submit}
                                      onClick={(event) =>
                                          append({ answer: "" })}>Add Answer</Button>}
                             </div>
