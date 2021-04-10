@@ -106,3 +106,4 @@ frontend/Anket0roo-App/*.swo
 
 ## Secrets ##
 server/Anket0roo/src/main/resources/application.properties
+server/Anket0roo/src/main/resources/uploads

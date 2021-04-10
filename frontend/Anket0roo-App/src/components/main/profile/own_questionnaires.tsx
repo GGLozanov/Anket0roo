@@ -24,11 +24,15 @@ export const OwnQuestionnaires: React.FC = () => {
         navigate(`/questionnaires/fill/${questionnaire.id}`, { replace: true });
     }
 
+    const closeQuestionnare = (questionnaire: Questionnaire) => {
+
+    }
+
     return (
         <GridList cols={3} className={classes.grid}>
             {userContext.user?.questionnaires.map((questionnaire) =>
                 <GridListTile key={questionnaire.id}>
-                    <QuestionnaireCard questionnaire={questionnaire} onCardClick={handleCardClick} />
+                    <QuestionnaireCard questionnaire={questionnaire} onCardClick={handleCardClick} onCloseQuestionnaire={closeQuestionnare} />
                 </GridListTile>
             ) ?? <Box/>}
         </GridList>

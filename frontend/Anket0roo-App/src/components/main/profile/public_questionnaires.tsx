@@ -36,7 +36,7 @@ export const PublicQuestionnaires: React.FC = () => {
             <GridList cols={2}>
                 {publicQuestionnaires?.map((questionnaire: Questionnaire) =>
                     <GridListTile key={questionnaire.id}>
-                        <QuestionnaireCard questionnaire={questionnaire} onCardClick={null} />
+                        <QuestionnaireCard questionnaire={questionnaire} onCardClick={null} onCloseQuestionnaire={null} />
                     </GridListTile>
                 )}
             </GridList>

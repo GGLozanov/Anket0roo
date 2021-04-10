@@ -10,5 +10,5 @@ class UserAnswerService(private val userAnswerRepository: UserAnswerRepository) 
         userAnswerRepository.saveAll(userAnswer)
 
     fun getUserAnswers(qId: Int): List<UserAnswer> =
-        userAnswerRepository.findUserAnswersByQuestionnaire_Id(qId)
+        userAnswerRepository.findUserAnswersByQuestionnaireId(qId)
 }

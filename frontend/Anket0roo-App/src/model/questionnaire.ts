@@ -14,8 +14,9 @@ export class Questionnaire extends IdModel {
     @Expose()
     authorId: number;
 
-    constructor(closed: boolean, isPublic: boolean, questionnaireQuestion: QuestionnaireQuestion[], authorId: number, id?: number) {
+    constructor(name: string, closed: boolean, isPublic: boolean, questionnaireQuestion: QuestionnaireQuestion[], authorId: number, id?: number) {
         super(id);
+        this.name = name;
         this.closed = closed;
         this.public = isPublic;
         this.questionnaireQuestions = questionnaireQuestion;

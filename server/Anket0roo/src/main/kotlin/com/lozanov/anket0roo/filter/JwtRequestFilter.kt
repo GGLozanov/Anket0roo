@@ -1,5 +1,6 @@
 package com.lozanov.anket0roo.filter
 
+import com.lozanov.anket0roo.controller.MediaController
 import com.lozanov.anket0roo.service.JwtUserDetailsService
 import com.lozanov.anket0roo.util.JwtTokenUtil
 import io.jsonwebtoken.ExpiredJwtException
@@ -80,8 +81,9 @@ class JwtRequestFilter(
 
         logger.info("Doing filter internal")
 
-        if((request.requestURL.equals("/authenticate") ||
-                        request.requestURL.equals("/user")) && request.method == HttpMethod.POST.name) {
+        if(((request.requestURL.equals("/authenticate") ||
+                        request.requestURL.equals("/user")) && request.method == HttpMethod.POST.name) ||
+                (request.requestURL.contains(MediaController.QUESTIONNAIRES_MEDIA_PATH) && request.method == HttpMethod.GET.name)) {
             chain.doFilter(request, response)
             println("Resuming for endpoint without needed token")
             return

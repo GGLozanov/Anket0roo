@@ -8,6 +8,7 @@ import Typography from '@material-ui/core/Typography';
 import {mainTheme} from "../theme/main_theme";
 import {Question} from "../model/question";
 import {
+    Box,
     CardMedia,
     Checkbox,
     FormControl,
@@ -27,7 +28,7 @@ const useStyles = makeStyles({
         minWidth: 275,
     },
     media: {
-        height: 140,
+        height: 100,
     },
     bundle: {
         display: 'flex',
@@ -40,13 +41,25 @@ const useStyles = makeStyles({
     },
 });
 
-interface OutlinedCardProps {
-    questionnaireQ: QuestionnaireQuestion
+interface InputCardProps {
+    handleMandatoryChange: (question: QuestionnaireQuestion) => void;
+    handleMoreThanOneAnswerChange: (question: QuestionnaireQuestion) => void;
+    mandatory: boolean;
+    moreThanOneAnswer: boolean;
 }
 
-// TODO: Keep track of state of press and etc.
-// TODO: Add check for mandatory (not even sure how tbh; probably not in this context-unarware component)
-export const QuestionCard: React.FC<OutlinedCardProps> = ({ questionnaireQ }: OutlinedCardProps) => {
+interface OutlinedCardProps {
+    questionnaireQ: QuestionnaireQuestion;
+    fillAnswers: boolean;
+    inputCardProps?: InputCardProps;
+    className?: string;
+    onCardClick?: (event: any) => void;
+    id?: string;
+}
+
+// a bit coupled like a Flutter widget but it'll do
+export const QuestionCard: React.FC<OutlinedCardProps> = ({ questionnaireQ, fillAnswers,
+                                                              inputCardProps, className, id, onCardClick }: OutlinedCardProps) => {
     const classes = useStyles();
 
     const [pressState, setPressState] = useState(new Map<number, boolean>(questionnaireQ.question.answers
@@ -65,31 +78,52 @@ export const QuestionCard: React.FC<OutlinedCardProps> = ({ questionnaireQ }: Ou
     const imageUrls = questionnaireQ.question.question.match(questionRegex);
     const filteredQuestion = questionnaireQ.question.question.replace(questionRegex, "");
 
+    console.log(imageUrls);
     return (
-        <Card className={classes.root} variant="outlined">
+        <Card id={id} onClick={(event) => {
+            if(onCardClick != null) {
+                onCardClick(event);
+            }
+        }} className={className != null ? className : classes.root} variant="outlined">
             <CardContent>
                 <div className={classes.bundle}>
                     <FormControl component="fieldset">
                         <FormLabel component="legend">{filteredQuestion}</FormLabel>
                         {imageUrls && <CardMedia
                             className={classes.media}
-                            src={imageUrls[0]}
-                            title={filteredQuestion} />}
+                            title={filteredQuestion} >
+                            <img src={encodeURI(imageUrls[0])} alt={"Image not found!"} />
+                        </CardMedia>}
 
                         {!questionnaireQ.moreThanOneAnswer ? <RadioGroup name="question-answers" value={groupValue} onChange={handleRadioChange}>
                             {questionnaireQ.question.answers.map((answer) => {
-                                return <FormControlLabel value={answer.answer} control={<Radio />} label={answer.answer} />
+                                return <FormControlLabel disabled={!fillAnswers} value={answer.answer} control={<Radio />} label={answer.answer} />
                             })}
                         </RadioGroup> : <FormGroup>
                             {questionnaireQ.question.answers.map((answer) => {
                                 return <FormControlLabel
-                                    control={<Checkbox checked={pressState.get(answer.id)}
+                                    control={<Checkbox disabled={!fillAnswers} checked={pressState.get(answer.id)}
                                                        onChange={handleCheckboxChange} name={answer.id.toString()} />}
                                     label={answer.answer}
                                 />
                             })}
                         </FormGroup>}
                     </FormControl>
+
+                    {inputCardProps && <Box>
+                        <FormControlLabel label={"Mandatory?"} control={
+                            <Checkbox checked={inputCardProps.mandatory}
+                                      onChange={(event) => {
+                                          event.persist();
+                                          event.stopPropagation();
+                                          inputCardProps.handleMandatoryChange(questionnaireQ); }} />} />
+                        <FormControlLabel label={"Can have more than one answer?"} control={
+                            <Checkbox checked={inputCardProps.moreThanOneAnswer}
+                                      onChange={(event) => {
+                                          event.persist();
+                                          event.stopPropagation();
+                                          inputCardProps.handleMoreThanOneAnswerChange(questionnaireQ); } } />} />
+                    </Box>}
                 </div>
             </CardContent>
         </Card>

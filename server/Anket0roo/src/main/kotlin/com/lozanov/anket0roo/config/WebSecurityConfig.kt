@@ -1,10 +1,8 @@
 package com.lozanov.anket0roo.config
 
-import com.lozanov.anket0roo.handler.JwtAuthenticationEntryPoint
+import com.lozanov.anket0roo.controller.MediaController
 import com.lozanov.anket0roo.filter.JwtRequestFilter
-import com.lozanov.anket0roo.handler.JwtAccessDeniedHandler
-import com.lozanov.anket0roo.service.JwtUserDetailsService
-import com.lozanov.anket0roo.util.JwtTokenUtil
+import com.lozanov.anket0roo.handler.JwtAuthenticationEntryPoint
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -19,8 +17,9 @@ import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
-import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
+import org.springframework.security.web.firewall.DefaultHttpFirewall
+import org.springframework.security.web.firewall.HttpFirewall
 
 
 @Configuration
@@ -68,6 +67,11 @@ class WebSecurityConfig : WebSecurityConfigurerAdapter() {
         return AuthenticatedUsernameValidator()
     }
 
+    @Bean
+    fun defaultHttpFirewall(): HttpFirewall? {
+        return DefaultHttpFirewall()
+    }
+
     @Throws(Exception::class)
     override fun configure(httpSecurity: HttpSecurity) {
         // We don't need CSRF for this example
@@ -75,6 +79,7 @@ class WebSecurityConfig : WebSecurityConfigurerAdapter() {
                 .authorizeRequests()
                 .antMatchers(HttpMethod.POST, "/authenticate", "/users").permitAll()
                 .antMatchers("/questionnaires/{tokenUrl}/**").permitAll()
+                .antMatchers(HttpMethod.GET, "${MediaController.QUESTIONNAIRES_MEDIA_PATH}/**").permitAll() // FIXME: If this were a real project, this would require auth and validation of ownership of resource (!)
                 .antMatchers("/users/{username}/**").access("@authenticatedUsernameValidator.checkUsername(authentication, #username)")
                 .anyRequest() // all other requests need to be authenticated
                 .authenticated().and().exceptionHandling() // make sure we use stateless session; session won't be used to store user's state.

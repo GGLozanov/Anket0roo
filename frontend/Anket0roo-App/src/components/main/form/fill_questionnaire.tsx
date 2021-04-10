@@ -4,10 +4,7 @@ import {Box} from "@material-ui/core";
 
 export const FillQuestionnaire: React.FC = () => {
     const urlParams = useParams();
-
-    // handle questionnaire not found error
-
-    // check if token valid, bla bla; reroute otherwise
+    // context-unaware component for filling questionnaire
     return (
         <Box></Box>
     );

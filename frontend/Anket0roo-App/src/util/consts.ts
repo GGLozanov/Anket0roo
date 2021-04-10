@@ -7,6 +7,6 @@ interface Constants {
 
 export const constants: Constants = {
     tokenKey: "token",
-    apiURL: "http://localhost:80/",
+    apiURL: "http://localhost/",
     jwtSecret: "InternetProgrammingWastesMyTime" // I really, really don't care enough to hide this
 };

@@ -2,6 +2,7 @@ import * as React from "react";
 import {Questionnaire} from "../model/questionnaire";
 import CardContent from "@material-ui/core/CardContent";
 import {
+    Button,
     Checkbox,
     FormControl,
     FormControlLabel,
@@ -18,14 +19,20 @@ const useStyles = makeStyles({
     root: {
         maxWidth: 345,
     },
+    closeButton: {
+        position: 'absolute',
+        left: '95%',
+        top: '-9%',
+    }
 });
 
 interface QuestionnaireCardProps {
     questionnaire: Questionnaire;
     onCardClick?: (questionnaire: Questionnaire) => void;
+    onCloseQuestionnaire?: (questionnaire: Questionnaire) => void;
 }
 
-export const QuestionnaireCard: React.FC<QuestionnaireCardProps> = ({ questionnaire, onCardClick }: QuestionnaireCardProps) => {
+export const QuestionnaireCard: React.FC<QuestionnaireCardProps> = ({ questionnaire, onCardClick, onCloseQuestionnaire }: QuestionnaireCardProps) => {
     const classes = useStyles();
 
     return (
@@ -38,6 +45,11 @@ export const QuestionnaireCard: React.FC<QuestionnaireCardProps> = ({ questionna
                 <Typography gutterBottom variant="h5" component="h2">
                     {questionnaire.name}
                 </Typography>
+                {onCloseQuestionnaire &&
+                    <Button className={classes.closeButton}
+                             onClick={onCloseQuestionnaire(questionnaire)}>
+                        Close
+                    </Button>}
                 <div>
                     <FormControlLabel
                         control={<Checkbox checked={!questionnaire.closed} disabled inputProps={{ 'aria-label': 'Open' }} />}

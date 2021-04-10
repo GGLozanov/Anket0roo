@@ -7,34 +7,27 @@ import org.springframework.core.io.UrlResource
 import org.springframework.stereotype.Service
 import org.springframework.util.StringUtils
 import org.springframework.web.multipart.MultipartFile
+import java.io.File
 import java.io.IOException
 import java.net.MalformedURLException
-import java.nio.file.Files
-import java.nio.file.Path
-import java.nio.file.Paths
-import java.nio.file.StandardCopyOption
+import java.nio.file.*
 import java.util.stream.Stream
 import javax.servlet.ServletContext
 
 @Service
-class MediaService(
-    protected val servletContext: ServletContext
-) {
-
-    @Value("\${spring.servlet.multipart.location}")
-    private val rootDir: String = ""
-
-    private val rootPath: Path by lazy {
-        Paths.get(servletContext.getRealPath(rootDir)
-                ?: throw Anket0rooResponseEntityExceptionHandler
-                        .InitializationException("Cannot NOT resolve servlet context path with root upload directory path"))
-                .toAbsolutePath().normalize()
+class MediaService {
+    private val rootDir: String by lazy {
+        FileSystems.getDefault()
+                .getPath("src/main/resources/uploads")
+                .toAbsolutePath()
+                .toString()
     }
 
     init {
-        if(!Files.isDirectory(rootPath)) {
+        val rootDirPath = Paths.get(rootDir)
+        if(!Files.isDirectory(rootDirPath)) {
             try {
-                Files.createDirectories(rootPath)
+                Files.createDirectories(rootDirPath)
             } catch(ex: IOException) {
                 throw Anket0rooResponseEntityExceptionHandler.InitializationException("Failed to initialise file directory for image upload!")
             }
@@ -49,7 +42,8 @@ class MediaService(
                 throw Anket0rooResponseEntityExceptionHandler.FileRetrievalException("Invalid storage path characters found in file!")
             }
 
-            Files.copy(file.inputStream, rootPath.resolve(filename), StandardCopyOption.REPLACE_EXISTING)
+            Files.copy(file.inputStream, Paths.get(rootDir + File.separator + filename),
+                    StandardCopyOption.REPLACE_EXISTING)
         } catch (e: Exception) {
             e.printStackTrace()
             throw Anket0rooResponseEntityExceptionHandler.FileRetrievalException("Could not store the file. Error: " + e.message)
@@ -58,8 +52,11 @@ class MediaService(
 
     fun load(filename: String): Resource {
         return try {
-            val file: Path = rootPath.resolve(filename)
+            val file: Path = Paths.get(rootDir + File.separator + filename)
             val resource: Resource = UrlResource(file.toUri())
+            println("File path: ${file.fileName}")
+            println("file exists: ${resource.exists()}")
+            println("file readable: ${resource.isReadable}")
             if (resource.exists() || resource.isReadable) {
                 resource
             } else {

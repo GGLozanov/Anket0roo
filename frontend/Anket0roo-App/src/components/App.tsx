@@ -62,6 +62,7 @@ export const App: React.FC = () => {
     }
 
     useEffect(() => {
+        console.log(`User fetch useEffect trigger; isLoggedIn: ${isLoggedIn}; user: ${authUser}`);
         if(authUser == null && isLoggedIn) {
             userService.getUser({isLoggedIn: !!token, login: login, logout: logout, token: token }) // only need logout call
             .catch((error) => {

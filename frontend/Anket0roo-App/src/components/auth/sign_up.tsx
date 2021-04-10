@@ -171,7 +171,7 @@ export const SignUp: React.FC = () => {
                     <Grid container>
                         <Grid item>
                             <Link to="/login">
-                                {"Don't have an account? Sign Up"}
+                                {"Already have an account? Sign in"}
                             </Link>
                         </Grid>
                     </Grid>

@@ -30,7 +30,7 @@ class QuestionController(
         Regex(Regex.escape(ServletUriComponentsBuilder.fromCurrentContextPath()
                 .replacePath(null)
                 .build()
-                .toUriString() + MediaController.QUESTIONNAIRES_MEDIA_PATH) + "/[^.]+\\.jpg|.png")
+                .toUriString() + MediaController.QUESTIONNAIRES_MEDIA_PATH + "/") + "[^.]+(\\.png|\\.jpg)")
     }
 
     @GetMapping(value = ["/users/{username}/questions"])
@@ -47,6 +47,8 @@ class QuestionController(
         val sentFile = image != null
         val question = ObjectMapper().readValue(requestParams["question"], Question::class.java)
 
+        println(linkRegex.pattern)
+        println(image?.originalFilename)
         if(sentFile && !linkRegex.containsMatchIn(question.question)) {
             println("File found but incorrectly assoc w/ question")
             throw Anket0rooResponseEntityExceptionHandler.RequestFormatException(
