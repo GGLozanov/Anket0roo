@@ -4,17 +4,19 @@ import {Question} from "../model/question";
 import {Questionnaire} from "../model/questionnaire";
 
 interface UserProps {
-    user?: User
-    setUser: (user: User) => void
-    addQuestion: (question: Question) => void
-    addQuestionnaire: (questionnaire: Questionnaire) => void
+    user?: User;
+    setUser: (user: User) => void;
+    addQuestion: (question: Question) => void;
+    addQuestionnaire: (questionnaire: Questionnaire) => void;
+    toggleQuestionnaireClose: (qId: number, closed: boolean) => void
 }
 
 export const UserContext = createContext<UserProps>({
     user: null,
     addQuestion: (question) => {},
     addQuestionnaire: (questionnaire) => {},
-    setUser: (user) => {}
+    setUser: (user) => {},
+    toggleQuestionnaireClose: (qId, closed) => {}
 });
 
 // man, imagine if I'd generified this. Oh right, that'd be for an actual app that has context retrieval with

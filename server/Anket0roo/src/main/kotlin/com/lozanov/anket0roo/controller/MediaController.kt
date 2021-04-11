@@ -36,7 +36,7 @@ class MediaController(
         println("Fetching file w/ filename ${filename}")
 
         val file = try {
-            val uriString = URI.create(filename).toASCIIString() // test URI schema validation
+            URI.create(filename).toASCIIString() // test URI schema validation
             mediaService.load(filename)
         } catch(ex: Exception) {
             mediaService.load(jsUrlEncode(filename)) // exception => encode

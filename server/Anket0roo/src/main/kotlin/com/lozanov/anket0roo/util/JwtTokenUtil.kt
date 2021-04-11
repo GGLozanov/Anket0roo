@@ -3,6 +3,7 @@ package com.lozanov.anket0roo.util
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm
+import kotlinx.serialization.json.JsonObject
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.security.core.userdetails.UserDetails
@@ -24,7 +25,7 @@ class JwtTokenUtil : Serializable {
     // retrieve expiration date from jwt token
     fun getExpirationDateFromToken(token: String?): Date = getClaimFromToken(token, Function { obj: Claims -> obj.expiration })
 
-    fun getQuestionnaireIdFromToken(token: String?): Int = getClaimFromToken(token, Function { obj: Claims -> obj["questionnaire_id", Int::class.java] })
+    fun getQuestionnaireIdFromToken(token: String?): java.lang.Integer = getClaimFromToken(token, Function { obj: Claims -> obj["questionnaire_id", java.lang.Integer::class.java] })
 
     fun <T> getClaimFromToken(token: String?, claimsResolver: Function<Claims, T>): T {
         val claims = getAllClaimsFromToken(token)

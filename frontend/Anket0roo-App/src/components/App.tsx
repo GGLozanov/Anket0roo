@@ -14,6 +14,7 @@ import {plainToClass} from "class-transformer";
 import {User} from "../model/user";
 import {Snackbar} from "@material-ui/core";
 import MuiAlert from "@material-ui/lab/Alert";
+import {Questionnaire} from "../model/questionnaire";
 
 WebFont.load({google: {families: ["Roboto:300,400,500"]}});
 
@@ -86,6 +87,13 @@ export const App: React.FC = () => {
             <UserContext.Provider value={{user: authUser, addQuestion:
                     (question) => authUser?.questions?.push(question), addQuestionnaire:
                     (questionnaire) => authUser?.questionnaires?.push(questionnaire),
+                    toggleQuestionnaireClose: (questionnaireId, closed) => {
+                        const questionnaire = authUser?.questionnaires?.find((questionnaire: Questionnaire) =>
+                            questionnaire.id == questionnaireId);
+                        questionnaire.closed = closed;
+                        authUser.questionnaires = authUser?.questionnaires?.filter((q: Questionnaire) => q.id != questionnaireId)
+                            .concat(questionnaire);
+                    },
                     setUser: (user) => setAuthUser(user)}}>
                 <AuthContext.Provider value={{isLoggedIn: isLoggedIn,
                     token: token, login: login, logout: logout}}>

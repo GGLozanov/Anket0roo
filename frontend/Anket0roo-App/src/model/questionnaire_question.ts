@@ -1,16 +1,13 @@
 import {Expose} from "class-transformer";
 import {Question} from "./question";
 
-export class QuestionnaireQuestion {
-    @Expose()
-    question: Question;
+export abstract class QuestionnaireQuestion {
     @Expose()
     mandatory: boolean;
     @Expose()
     moreThanOneAnswer: boolean;
 
-    constructor(question: Question, mandatory: boolean, moreThanOneAnswer: boolean) {
-        this.question = question;
+    constructor(mandatory: boolean, moreThanOneAnswer: boolean) {
         this.mandatory = mandatory;
         this.moreThanOneAnswer = moreThanOneAnswer;
     }

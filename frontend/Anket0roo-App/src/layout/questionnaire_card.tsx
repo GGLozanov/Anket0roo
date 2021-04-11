@@ -17,13 +17,10 @@ import Card from "@material-ui/core/Card";
 
 const useStyles = makeStyles({
     root: {
-        maxWidth: 345,
+        display: "flex",
+        width: "100%",
+        minWidth: "20%",
     },
-    closeButton: {
-        position: 'absolute',
-        left: '95%',
-        top: '-9%',
-    }
 });
 
 interface QuestionnaireCardProps {
@@ -38,7 +35,9 @@ export const QuestionnaireCard: React.FC<QuestionnaireCardProps> = ({ questionna
     return (
         <Card className={classes.root} variant="outlined" onClick={(event) => {
             event.preventDefault();
-            onCardClick(questionnaire);
+            if(onCardClick) {
+                onCardClick(questionnaire);
+            }
             return event;
         }}>
             <CardContent>
@@ -46,11 +45,12 @@ export const QuestionnaireCard: React.FC<QuestionnaireCardProps> = ({ questionna
                     {questionnaire.name}
                 </Typography>
                 {onCloseQuestionnaire &&
-                    <Button className={classes.closeButton}
-                             onClick={onCloseQuestionnaire(questionnaire)}>
-                        Close
+                    <Button onClick={(event) => {
+                                 event.stopPropagation();
+                                 onCloseQuestionnaire(questionnaire); } }>
+                        {questionnaire.closed ? "Open" : "Close"}
                     </Button>}
-                <div>
+                <div style={{ display: 'flex' }}>
                     <FormControlLabel
                         control={<Checkbox checked={!questionnaire.closed} disabled inputProps={{ 'aria-label': 'Open' }} />}
                         label="Open"

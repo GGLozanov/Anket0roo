@@ -15,7 +15,6 @@ import {useAuthContext} from "../../../context/auth_context";
 import {useNavigate} from "react-router";
 import {Controller, useForm} from "react-hook-form";
 import {MouseEventHandler, useEffect, useState} from "react";
-import {QuestionnaireQuestion} from "../../../model/questionnaire_question";
 import {QuestionCard} from "../../../layout/question_card";
 import {Question} from "../../../model/question";
 import {questionnaireService} from "../../../service/questionnaire_service";
@@ -23,6 +22,9 @@ import {Questionnaire} from "../../../model/questionnaire";
 import {TransitionProps} from "@material-ui/core/transitions";
 import Checkbox, { CheckboxProps } from '@material-ui/core/Checkbox';
 import {ref} from "yup";
+import {plainToClass} from "class-transformer";
+import {QuestionnaireQuestionRequest} from "../../../model/questionnaire_question_req";
+import {QuestionnaireQuestionResponse} from "../../../model/questionnaire_question_res";
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -47,15 +49,15 @@ const useStyles = makeStyles((theme) => ({
     },
     selectedTile: {
         backgroundColor: theme.palette.primary.main,
-        width: "50%",
-        minWidth: 200,
-        height: 200,
+        minWidth: 275,
+        minHeight: 200,
+        height: "100%"
     },
     deselectedTile: {
-        backgroundColor: theme.palette.secondary.main,
-        width: "50%",
-        minWidth: 200,
-        height: 200,
+        backgroundColor: "#FFFFFF",
+        minWidth: 275,
+        minHeight: 200,
+        height: "100%"
     },
     submit: {
         margin: theme.spacing(3, 0, 2),
@@ -96,8 +98,8 @@ export const CreateQuestionnaire: React.FC = () => {
     const { handleSubmit, control, reset, formState: { errors } } = useForm<CreateQuestionnaireFormProps>();
 
     const [questionnaireQuestions, setQuestionnaireQuestions] =
-        useState<QuestionnaireQuestion[]>(userContext.user?.questions?.map((question) =>
-            new QuestionnaireQuestion(question, false, false)));
+        useState<QuestionnaireQuestionResponse[]>(userContext.user?.questions?.map((question) =>
+            new QuestionnaireQuestionResponse(question, false, false)));
     console.log(questionnaireQuestions);
     const [selectedQuestionnaireQuestionsIds, setSelectedQuestionnaireQuestionsIds] = useState<number[]>([]);
 
@@ -111,7 +113,7 @@ export const CreateQuestionnaire: React.FC = () => {
 
     useEffect(() => {
         setQuestionnaireQuestions(userContext.user?.questions?.map((question) =>
-            new QuestionnaireQuestion(question, false, false)));
+            new QuestionnaireQuestionResponse(question, false, false)));
     }, [userContext.user]);
 
     console.log(`Chosen questionnaireQuestions IDS: ${JSON.stringify(selectedQuestionnaireQuestionsIds)}`);
@@ -119,10 +121,14 @@ export const CreateQuestionnaire: React.FC = () => {
 
     const onSubmit = (data: CreateQuestionnaireFormProps) => {
         console.log(data);
-        const questionnaire = new Questionnaire(data.name, false, isPublic,
+        const questionnaire = new Questionnaire<QuestionnaireQuestionRequest>(data.name, false, isPublic,
             questionnaireQuestions.filter((qq) =>
-                selectedQuestionnaireQuestionsIds.includes(qq.question.id)),
+                selectedQuestionnaireQuestionsIds.includes(qq.question.id))
+                .map((qq) =>
+                    new QuestionnaireQuestionRequest({ questionId: qq.question.id },
+                        qq.mandatory, qq.moreThanOneAnswer)),
             userContext.user.id, null);
+        console.log("Sending questionnaire: " + JSON.stringify(questionnaire));
 
         questionnaireService.createQuestionnaire(authContext, questionnaire)
             .catch((error) => {
@@ -131,8 +137,10 @@ export const CreateQuestionnaire: React.FC = () => {
                     { keepErrors: true, keepDirty: true });
                 setError("Something went wrong with creating your questionnaire! Please try again or login again!");
             }).then((response) => {
-                if(response && response.data && response.data.uniqueUrl && response.data.uniqueAdminUrl) {
+                if(response && response.data && response.data.uniqueUrl && response.data.uniqueAdminUrl && response.data.questionnaire) {
                     // display unique URLs in dialog & reroute
+                    userContext.addQuestionnaire(plainToClass(Questionnaire,
+                        response.data.questionnaire, { excludeExtraneousValues: true }));
                     setAdminGenUrl(response.data.uniqueAdminUrl);
                     setUserGenUrl(response.data.uniqueUrl);
                     setUrlDialogOpen(true);
@@ -142,7 +150,7 @@ export const CreateQuestionnaire: React.FC = () => {
         })
     }
 
-    const handleMoreThanOneAnswerChange = (questionnaireQ: QuestionnaireQuestion) => {
+    const handleMoreThanOneAnswerChange = (questionnaireQ: QuestionnaireQuestionResponse) => {
         // efficiency 100
         setQuestionnaireQuestions(questionnaireQuestions.map((questionnaireQuestion) => {
            if(questionnaireQuestion.question.id == questionnaireQ.question.id) {
@@ -152,7 +160,7 @@ export const CreateQuestionnaire: React.FC = () => {
         }));
     }
 
-    const handleMandatoryChange = (questionnaireQ: QuestionnaireQuestion) => {
+    const handleMandatoryChange = (questionnaireQ: QuestionnaireQuestionResponse) => {
         setQuestionnaireQuestions(questionnaireQuestions.map((questionnaireQuestion) => {
             if(questionnaireQuestion.question.id == questionnaireQ.question.id) {
                 return { ...questionnaireQuestion, mandatory: !questionnaireQ.mandatory };
@@ -199,7 +207,7 @@ export const CreateQuestionnaire: React.FC = () => {
                 </form>
 
                 <div className={classes.root}>
-                    <GridList className={classes.gridList} cellHeight={160} cols={2}>
+                    <GridList className={classes.gridList} cellHeight={200} cols={2}>
                         {questionnaireQuestions?.map((questionnaireQuestion) =>
                             <GridListTile>
                                 <MemoQuestionCard id={questionnaireQuestion.question.id.toString()}
@@ -214,7 +222,8 @@ export const CreateQuestionnaire: React.FC = () => {
                                               console.log("Removing question from selected");
                                               // remove
                                               setSelectedQuestionnaireQuestionsIds((questionIds) =>
-                                                  questionIds.splice(questionIndex + 1, 1));
+                                                  questionIds.filter((qId) => qId != questionnaireQuestion.question.id));
+                                              // OVERHEAD 9000
                                           } else {
                                               console.log("Adding question from selected");
                                               // append
@@ -242,6 +251,7 @@ export const CreateQuestionnaire: React.FC = () => {
                     variant="contained"
                     color="primary"
                     className={classes.submit}
+                    onClick={(event) => handleSubmit(onSubmit)()}
                 >
                     Create Questionnaire
                 </Button>

@@ -11,4 +11,7 @@ interface QuestionRepository : CrudRepository<Question, Int> {
 
     @Query("SELECT question FROM Question question, User u WHERE u.username LIKE :username AND question.ownerId = u.id")
     fun findQuestionsByOwnerUsername(username: String): List<Question>
+
+    @Query("SELECT COUNT(q) FROM Question q WHERE q.id IN (:questionIds) AND q.ownerId <> :userId")
+    fun countQuestionsByIdNotInForUser(questionIds: List<Int>, userId: Int): Int
 }

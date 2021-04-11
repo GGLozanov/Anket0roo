@@ -26,7 +26,9 @@ module.exports = {
     devServer: {
         contentBase: path.join(__dirname, "build"),
         compress: true,
-        historyApiFallback: true,
+        historyApiFallback: {
+            disableDotRule: true
+        },
         port: 8000
     },
     module: {

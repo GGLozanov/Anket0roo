@@ -6,5 +6,5 @@ import org.springframework.stereotype.Repository
 
 @Repository
 interface UserAnswerRepository : CrudRepository<UserAnswer, Int> {
-    fun findUserAnswersByQuestionnaireId(qId: Int): List<UserAnswer>
+    fun findUserAnswersByQuestionnaireId(qId: java.lang.Integer): List<UserAnswer>
 }

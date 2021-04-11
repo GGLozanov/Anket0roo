@@ -20,15 +20,18 @@ import {
     Radio,
     RadioGroup
 } from "@material-ui/core";
-import {QuestionnaireQuestion} from "../model/questionnaire_question";
+import {QuestionnaireQuestionResponse} from "../model/questionnaire_question_res";
 import {questionRegex} from "../util/question_image_regex";
 
 const useStyles = makeStyles({
     root: {
         minWidth: 275,
+        height: 300,
+        maxHeight: 400,
     },
     media: {
-        height: 100,
+        maxHeight: 150,
+        width: 120,
     },
     bundle: {
         display: 'flex',
@@ -39,19 +42,33 @@ const useStyles = makeStyles({
     formControl: {
         margin: mainTheme.spacing(3),
     },
+    radioGroup: {
+        minHeight: 100,
+    },
+    checkboxGroup: {
+        minHeight: 100,
+    },
+    question: {
+        padding: mainTheme.spacing(1)
+    }
 });
 
 interface InputCardProps {
-    handleMandatoryChange: (question: QuestionnaireQuestion) => void;
-    handleMoreThanOneAnswerChange: (question: QuestionnaireQuestion) => void;
+    handleMandatoryChange: (question: QuestionnaireQuestionResponse) => void;
+    handleMoreThanOneAnswerChange: (question: QuestionnaireQuestionResponse) => void;
     mandatory: boolean;
     moreThanOneAnswer: boolean;
 }
 
+interface FillCardProps {
+    onAnswerSelected: (answerId: number) => void
+}
+
 interface OutlinedCardProps {
-    questionnaireQ: QuestionnaireQuestion;
+    questionnaireQ: QuestionnaireQuestionResponse;
     fillAnswers: boolean;
     inputCardProps?: InputCardProps;
+    fillCardProps?: FillCardProps;
     className?: string;
     onCardClick?: (event: any) => void;
     id?: string;
@@ -59,7 +76,8 @@ interface OutlinedCardProps {
 
 // a bit coupled like a Flutter widget but it'll do
 export const QuestionCard: React.FC<OutlinedCardProps> = ({ questionnaireQ, fillAnswers,
-                                                              inputCardProps, className, id, onCardClick }: OutlinedCardProps) => {
+                                                              inputCardProps, fillCardProps, className,
+                                                              id, onCardClick }: OutlinedCardProps) => {
     const classes = useStyles();
 
     const [pressState, setPressState] = useState(new Map<number, boolean>(questionnaireQ.question.answers
@@ -68,38 +86,48 @@ export const QuestionCard: React.FC<OutlinedCardProps> = ({ questionnaireQ, fill
     const [groupValue, setGroupValue] = useState('');
 
     const handleRadioChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setGroupValue((event.target as HTMLInputElement).value);
+        const answerId = (event.target as HTMLInputElement).value;
+        setGroupValue(answerId);
+        fillCardProps?.onAnswerSelected(parseInt(answerId));
     };
 
     const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        pressState.set(parseInt(event.target.name), event.target.checked);
+        const answerId = parseInt(event.target.name);
+        pressState.set(answerId, event.target.checked);
         setPressState(pressState);
+        fillCardProps?.onAnswerSelected(answerId);
     };
+
     const imageUrls = questionnaireQ.question.question.match(questionRegex);
     const filteredQuestion = questionnaireQ.question.question.replace(questionRegex, "");
 
     console.log(imageUrls);
     return (
         <Card id={id} onClick={(event) => {
-            if(onCardClick != null) {
+            const targetId = event.currentTarget.id;
+            if(onCardClick != null && targetId == id) {
                 onCardClick(event);
             }
         }} className={className != null ? className : classes.root} variant="outlined">
             <CardContent>
                 <div className={classes.bundle}>
                     <FormControl component="fieldset">
-                        <FormLabel component="legend">{filteredQuestion}</FormLabel>
+                        <FormLabel className={classes.question} component="legend">{filteredQuestion}</FormLabel>
                         {imageUrls && <CardMedia
-                            className={classes.media}
                             title={filteredQuestion} >
-                            <img src={encodeURI(imageUrls[0])} alt={"Image not found!"} />
+                            <img className={classes.media}
+                                  src={encodeURI(imageUrls[0])} alt={"Image not found!"} />
                         </CardMedia>}
 
-                        {!questionnaireQ.moreThanOneAnswer ? <RadioGroup name="question-answers" value={groupValue} onChange={handleRadioChange}>
+                        {!questionnaireQ.moreThanOneAnswer ? <RadioGroup row={true}
+                                                                         name="question-answers"
+                                                                         className={classes.radioGroup}
+                                                                         value={groupValue} onChange={handleRadioChange}>
                             {questionnaireQ.question.answers.map((answer) => {
-                                return <FormControlLabel disabled={!fillAnswers} value={answer.answer} control={<Radio />} label={answer.answer} />
+                                return <FormControlLabel disabled={!fillAnswers} value={answer.id.toString()}
+                                                         control={<Radio required={fillAnswers} />} label={answer.answer} />
                             })}
-                        </RadioGroup> : <FormGroup>
+                        </RadioGroup> : <FormGroup className={classes.checkboxGroup} row={true}>
                             {questionnaireQ.question.answers.map((answer) => {
                                 return <FormControlLabel
                                     control={<Checkbox disabled={!fillAnswers} checked={pressState.get(answer.id)}
@@ -111,18 +139,16 @@ export const QuestionCard: React.FC<OutlinedCardProps> = ({ questionnaireQ, fill
                     </FormControl>
 
                     {inputCardProps && <Box>
-                        <FormControlLabel label={"Mandatory?"} control={
-                            <Checkbox checked={inputCardProps.mandatory}
-                                      onChange={(event) => {
-                                          event.persist();
-                                          event.stopPropagation();
-                                          inputCardProps.handleMandatoryChange(questionnaireQ); }} />} />
-                        <FormControlLabel label={"Can have more than one answer?"} control={
-                            <Checkbox checked={inputCardProps.moreThanOneAnswer}
-                                      onChange={(event) => {
-                                          event.persist();
-                                          event.stopPropagation();
-                                          inputCardProps.handleMoreThanOneAnswerChange(questionnaireQ); } } />} />
+                        <FormControlLabel label={"Mandatory?"}  onClick={(event) => {
+                            event.preventDefault();
+                            event.stopPropagation();
+                            inputCardProps.handleMandatoryChange(questionnaireQ); }} control={
+                            <Checkbox checked={inputCardProps.mandatory}/>} />
+                        <FormControlLabel label={"Can have more than one answer?"} onClick={(event) => {
+                            event.preventDefault();
+                            event.stopPropagation();
+                            inputCardProps.handleMoreThanOneAnswerChange(questionnaireQ); } } control={
+                            <Checkbox checked={inputCardProps.moreThanOneAnswer} />} />
                     </Box>}
                 </div>
             </CardContent>

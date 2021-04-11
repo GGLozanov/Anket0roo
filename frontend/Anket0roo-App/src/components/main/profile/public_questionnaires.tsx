@@ -5,14 +5,23 @@ import {questionnaireService} from "../../../service/questionnaire_service";
 import {plainToClass} from "class-transformer";
 import {Questionnaire} from "../../../model/questionnaire";
 import {QuestionnaireCard} from "../../../layout/questionnaire_card";
-import {AuthContext} from "../../../context/auth_context";
+import {AuthContext, useAuthContext} from "../../../context/auth_context";
+import {useUserContext} from "../../../context/user_context";
 
 export const PublicQuestionnaires: React.FC = () => {
     // refetch questionnaires (public) every time
     const [publicQuestionnaires, setPublicQuestionnaires] = useState(null);
     const [error, setError] = useState(null);
 
-    const authContext = useContext(AuthContext);
+    const authContext = useAuthContext();
+    const userContext = useUserContext();
+
+    const handleCardClick = (questionnaire: Questionnaire) => {
+        // navigate to admin page ONLY with link
+        // navigate to fill out form otherwise
+        // TODO: IP/cookie check or whatever
+        navigate(`/questionnaires/fill/${questionnaire.id}`, { replace: true });
+    }
 
     useEffect(() => {
         if(publicQuestionnaires == null) {
@@ -34,9 +43,11 @@ export const PublicQuestionnaires: React.FC = () => {
     return (
         <Container>
             <GridList cols={2}>
-                {publicQuestionnaires?.map((questionnaire: Questionnaire) =>
+                {publicQuestionnaires && userContext.user && [...publicQuestionnaires,
+                    ...userContext.user.questionnaires.filter((q) => q.public)]
+                    ?.map((questionnaire: Questionnaire) =>
                     <GridListTile key={questionnaire.id}>
-                        <QuestionnaireCard questionnaire={questionnaire} onCardClick={null} onCloseQuestionnaire={null} />
+                        <QuestionnaireCard questionnaire={questionnaire} onCardClick={handleCardClick} onCloseQuestionnaire={null} />
                     </GridListTile>
                 )}
             </GridList>

@@ -25,7 +25,4 @@ class QuestionnaireService(
     
     fun getQuestionnaireById(id: Int): Questionnaire =
             questionnaireRepository.findById(id).orElseThrow()
-
-    fun countQuestionnaireQuestionsByQuestionIdNotInForUser(questionIds: List<Int>, userId: Int) =
-            questionnaireQuestionRepository.countQuestionnaireQuestionsByQuestionIdNotInForUser(questionIds, userId)
 }

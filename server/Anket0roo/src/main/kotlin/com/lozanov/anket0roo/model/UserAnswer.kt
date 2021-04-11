@@ -23,11 +23,16 @@ data class UserAnswer(
     @DateTimeFormat
     @Contextual
     @Column(name = "answer_date")
-    val createDate: java.util.Date,
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    val createDate: java.util.Date? = null,
 
     @Column(name = "questionnaire_id")
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     val questionnaireId: Int,
+
+    @Column(name = "question_id")
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    val questionId: Int,
 
     @Column(name = "answer_id")
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
@@ -44,6 +49,12 @@ data class UserAnswer(
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "answer_id", referencedColumnName = "id", insertable = false, updatable = false)
     @Transient
-    @JsonIgnore
-    val answer: Answer? = null
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    val answer: Answer? = null,
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "question_id", referencedColumnName = "id", insertable = false, updatable = false)
+    @Transient
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    val question: Question? = null
 ): java.io.Serializable

@@ -9,6 +9,6 @@ class UserAnswerService(private val userAnswerRepository: UserAnswerRepository) 
     fun saveUserAnswers(userAnswer: List<UserAnswer>): Iterable<UserAnswer> =
         userAnswerRepository.saveAll(userAnswer)
 
-    fun getUserAnswers(qId: Int): List<UserAnswer> =
+    fun getUserAnswers(qId: java.lang.Integer): List<UserAnswer> =
         userAnswerRepository.findUserAnswersByQuestionnaireId(qId)
 }

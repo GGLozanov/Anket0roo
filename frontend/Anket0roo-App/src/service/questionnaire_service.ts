@@ -4,9 +4,11 @@ import axios, {AxiosResponse} from "axios";
 import {constants} from "../util/consts";
 import {classToPlain} from "class-transformer";
 import {AuthContextProps} from "../context/auth_context";
+import {QuestionnaireQuestionRequest} from "../model/questionnaire_question_req";
+import {UserAnswerRequest} from "../model/user_answer_req";
 
-class QuestionService extends AuthInclusiveService {
-    createQuestionnaire(authContext: AuthContextProps, questionnaire: Questionnaire): Promise<AxiosResponse> {
+class QuestionnaireService extends AuthInclusiveService {
+    createQuestionnaire(authContext: AuthContextProps, questionnaire: Questionnaire<QuestionnaireQuestionRequest>): Promise<AxiosResponse> {
         const authUsernameHeaderPair = this.getAuthUsernameAndHeaderFromContextToken(authContext);
 
         return axios.post(constants.apiURL + `users/${authUsernameHeaderPair.authUsername}/questionnaires`,
@@ -18,7 +20,7 @@ class QuestionService extends AuthInclusiveService {
         const authUsernameHeaderPair = this.getAuthUsernameAndHeaderFromContextToken(authContext);
 
         return axios.put(
-            constants.apiURL + `users/${authUsernameHeaderPair.authUsername}/questionnaires/${questionnaireId}/close`,
+            constants.apiURL + `users/${authUsernameHeaderPair.authUsername}/questionnaires/${questionnaireId}/toggle_open`,
             null,
             { headers: authUsernameHeaderPair.authHeader }
         );
@@ -27,15 +29,41 @@ class QuestionService extends AuthInclusiveService {
     getPublicQuestionnaires(authContext: AuthContextProps): Promise<AxiosResponse> {
         const authUsernameHeaderPair = this.getAuthUsernameAndHeaderFromContextToken(authContext);
 
-        return axios.get(constants.apiURL + "questionnaires", { headers: authUsernameHeaderPair.authHeader })
+        return axios.get(constants.apiURL + "questionnaires", { headers: authUsernameHeaderPair.authHeader });
     }
 
-    // TODO: tokenUrl should be sanitized prior to input here
     getQuestionnaireForTokenUrl(authContext: AuthContextProps, tokenUrl: string): Promise<AxiosResponse> {
         const authUsernameHeaderPair = this.getAuthUsernameAndHeaderFromContextToken(authContext);
 
         return axios.get(constants.apiURL + `questionnaires/${tokenUrl}`, { headers: authUsernameHeaderPair.authHeader });
     }
+
+    getQuestionnaireForId(authContext: AuthContextProps, id: number): Promise<AxiosResponse> {
+        const authUsernameHeaderPair = this.getAuthUsernameAndHeaderFromContextToken(authContext);
+
+        return axios.get(constants.apiURL + `questionnaires/ping/${id}`, { headers: authUsernameHeaderPair.authHeader });
+    }
+
+    submitUserAnswersWithTokenUrl(authContext: AuthContextProps, tokenUrl: string, userAnswers: UserAnswerRequest[]): Promise<AxiosResponse> {
+        const authUsernameHeaderPair = this.getAuthUsernameAndHeaderFromContextToken(authContext);
+
+        return axios.post(constants.apiURL + `questionnaires/${tokenUrl}/submit`, classToPlain(userAnswers),
+            { headers: authUsernameHeaderPair });
+    }
+
+    submitUserAnswersWithQuestionnaireId(authContext: AuthContextProps, questionnaireId: number, userAnswers: UserAnswerRequest[]): Promise<AxiosResponse> {
+        const authUsernameHeaderPair = this.getAuthUsernameAndHeaderFromContextToken(authContext);
+
+        return axios.post(constants.apiURL + `questionnaires/ping/${questionnaireId}/submit`, classToPlain(userAnswers),
+            { headers: authUsernameHeaderPair });
+    }
+
+    getUserAnswersWithTokenUrl(authContext: AuthContextProps, tokenUrl: string): Promise<AxiosResponse> {
+        const authUsernameHeaderPair = this.getAuthUsernameAndHeaderFromContextToken(authContext);
+
+        return axios.get(constants.apiURL + `questionnaires/admin/${tokenUrl}`,
+            { headers: authUsernameHeaderPair });
+    }
 }
 
-export const questionnaireService = new QuestionService();
+export const questionnaireService = new QuestionnaireService();

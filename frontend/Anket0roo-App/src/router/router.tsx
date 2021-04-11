@@ -12,6 +12,7 @@ import {CreateQuestionnaire} from "../components/main/form/create_questionnaire"
 import {CreateQuestion} from "../components/main/form/create_question";
 import {FillQuestionnairePublic} from "../components/main/form/fill_questionnaire_public";
 import {AuthComponentWrapper, AuthRouteWrapper} from "../components/auth/auth_wrapper";
+import {FillQuestionnaireToken} from "../components/main/form/fill_questionnaire_token";
 
 interface AuthRouteProps {
     loggedIn: boolean
@@ -37,7 +38,7 @@ const Routes: React.FC<AuthRouteProps> = ({ loggedIn }: AuthRouteProps) => {
         { path: 'profile/create_questionnaire', element: <AuthComponentWrapper componentToRenderOnAuth={<CreateQuestionnaire />} isLoggedIn={loggedIn} /> },
         { path: 'profile/create_question', element: <AuthComponentWrapper componentToRenderOnAuth={<CreateQuestion />} isLoggedIn={loggedIn} /> },
         { path: 'questionnaires/fill/:id', element: <AuthComponentWrapper componentToRenderOnAuth={<FillQuestionnairePublic />} isLoggedIn={loggedIn} /> },
-        { path: 'questionnaires/:tokenUrl', element: <FillQuestionnaire /> },
+        { path: 'questionnaires/:tokenUrl', element: <FillQuestionnaireToken /> },
         { path: 'questionnaires/admin/:tokenUrl', element: <ViewQuestionnaireResults /> },
         { path: '*', element: <Error errorCode={404} errorReason={"Requested URL not found!"} /> }
     ]);

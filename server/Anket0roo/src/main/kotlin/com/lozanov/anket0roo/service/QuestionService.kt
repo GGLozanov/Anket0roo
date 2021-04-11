@@ -12,4 +12,7 @@ class QuestionService(private val questionRepository: QuestionRepository) {
     fun findUserQuestions(username: String): List<Question> = questionRepository.findQuestionsByOwnerUsername(username)
 
     fun findQuestionsByIds(ids: List<Int>): MutableIterable<Question> = questionRepository.findAllById(ids)
+
+    fun countQuestionsByIdNotInForUser(questionIds: List<Int>, userId: Int): Int =
+            questionRepository.countQuestionsByIdNotInForUser(questionIds, userId)
 }

@@ -58,9 +58,7 @@ const tabProps = (idx: number) => {
 export const Profile: React.FC = () => {
     const classes = useStyles();
     const theme = useTheme();
-
-    const [user, setUser] = useState(null);
-    const [profileName, setProfileName] = useState(null);
+    const userContext = useUserContext();
 
     const [open, setOpen] = useState(false);
     const [tabValue, setTabValue] = useState(0);
@@ -100,7 +98,7 @@ export const Profile: React.FC = () => {
                         <MenuIcon />
                     </IconButton>
                     <Typography variant="h6" className={classes.title}>
-                        {profileName ? <div>Your Profile, {profileName}</div> : <div>Your Profile</div>}
+                        {userContext.user?.username ? <div>Your Profile, {userContext.user?.username}</div> : <div>Your Profile</div>}
                     </Typography>
                     <Button
                         variant="outlined"
