@@ -50,6 +50,10 @@ const useStyles = makeStyles({
     },
     question: {
         padding: mainTheme.spacing(1)
+    },
+    mandatory: {
+        padding: mainTheme.spacing(1),
+        color: "#00FF00"
     }
 });
 
@@ -61,7 +65,8 @@ interface InputCardProps {
 }
 
 interface FillCardProps {
-    onAnswerSelected: (answerId: number) => void
+    onCheckboxAnswerSelected: (answerId: number, selected: boolean) => void;
+    onRadioAnswerSelected: (answerId: number) => void;
 }
 
 interface OutlinedCardProps {
@@ -80,22 +85,23 @@ export const QuestionCard: React.FC<OutlinedCardProps> = ({ questionnaireQ, fill
                                                               id, onCardClick }: OutlinedCardProps) => {
     const classes = useStyles();
 
-    const [pressState, setPressState] = useState(new Map<number, boolean>(questionnaireQ.question.answers
-        .map((answer) => { return [answer.id, false]; })));
+    const [pressState, setPressState] = useState(new Map<number, boolean>());
 
     const [groupValue, setGroupValue] = useState('');
 
     const handleRadioChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const answerId = (event.target as HTMLInputElement).value;
         setGroupValue(answerId);
-        fillCardProps?.onAnswerSelected(parseInt(answerId));
+        fillCardProps?.onRadioAnswerSelected(parseInt(answerId));
     };
 
-    const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const handleCheckboxChange = (event: any) => {
         const answerId = parseInt(event.target.name);
-        pressState.set(answerId, event.target.checked);
-        setPressState(pressState);
-        fillCardProps?.onAnswerSelected(answerId);
+        console.log(`Answer id: ${answerId}`);
+        let newPressState = new Map(pressState);
+        newPressState.set(answerId, !newPressState.get(answerId));
+        setPressState(newPressState);
+        fillCardProps?.onCheckboxAnswerSelected(answerId, !newPressState.get(answerId));
     };
 
     const imageUrls = questionnaireQ.question.question.match(questionRegex);
@@ -112,7 +118,10 @@ export const QuestionCard: React.FC<OutlinedCardProps> = ({ questionnaireQ, fill
             <CardContent>
                 <div className={classes.bundle}>
                     <FormControl component="fieldset">
-                        <FormLabel className={classes.question} component="legend">{filteredQuestion}</FormLabel>
+                        <div style={ {display: "flex"} }>
+                            <FormLabel className={classes.question} component="legend">{filteredQuestion}</FormLabel>
+                            {questionnaireQ?.mandatory && <Typography className={classes.mandatory} variant={"h6"}>Mandatory</Typography> }
+                        </div>
                         {imageUrls && <CardMedia
                             title={filteredQuestion} >
                             <img className={classes.media}
@@ -130,8 +139,8 @@ export const QuestionCard: React.FC<OutlinedCardProps> = ({ questionnaireQ, fill
                         </RadioGroup> : <FormGroup className={classes.checkboxGroup} row={true}>
                             {questionnaireQ.question.answers.map((answer) => {
                                 return <FormControlLabel
-                                    control={<Checkbox disabled={!fillAnswers} checked={pressState.get(answer.id)}
-                                                       onChange={handleCheckboxChange} name={answer.id.toString()} />}
+                                    control={<Checkbox disabled={!fillAnswers} checked={pressState.get(answer.id) ?? false}
+                                                       onClick={(event) => handleCheckboxChange(event)} name={answer.id.toString()} />}
                                     label={answer.answer}
                                 />
                             })}

@@ -24,15 +24,15 @@ data class QuestionnaireQuestion(
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     var questionnaire: Questionnaire? = null,
 
-        @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("questionId")
     @JoinColumn(name = "question_id", insertable = false, updatable = false)
     var question: Question? = null,
 
-        @Column(name = "mandatory")
+    @Column(name = "mandatory")
     val mandatory: Boolean,
 
-        @Column(name = "more_than_one_answer")
+    @Column(name = "more_than_one_answer")
     val moreThanOneAnswer: Boolean
 ): java.io.Serializable {
     @Embeddable

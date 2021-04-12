@@ -25,6 +25,7 @@ import {ref} from "yup";
 import {plainToClass} from "class-transformer";
 import {QuestionnaireQuestionRequest} from "../../../model/questionnaire_question_req";
 import {QuestionnaireQuestionResponse} from "../../../model/questionnaire_question_res";
+import {DialogTransition} from "../../../util/dialog_transition";
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -67,13 +68,6 @@ const useStyles = makeStyles((theme) => ({
 interface CreateQuestionnaireFormProps {
     name: string;
 }
-
-const DialogTransition = React.forwardRef(function Transition(
-    props: TransitionProps & { children?: React.ReactElement<any, any> },
-    ref: React.Ref<unknown>,
-) {
-    return <Slide direction="up" ref={ref} {...props} />;
-});
 
 export const CreateQuestionnaire: React.FC = () => {
     const userContext = useUserContext();

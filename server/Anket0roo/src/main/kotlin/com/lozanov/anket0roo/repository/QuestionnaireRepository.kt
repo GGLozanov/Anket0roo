@@ -16,4 +16,6 @@ interface QuestionnaireRepository : CrudRepository<Questionnaire, Int> {
 
     @Query("SELECT questionnaire FROM Questionnaire questionnaire, User u WHERE u.username LIKE :username AND u.id = questionnaire.authorId AND questionnaire.id = :id")
     fun findQuestionnairesByAuthorUsernameAndId(username: String, id: Int): Questionnaire?
+
+    fun countQuestionnairesByAuthorIdAndId(authorId: Int, id: Int): Int
 }

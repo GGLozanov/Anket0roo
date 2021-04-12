@@ -27,9 +27,11 @@ interface QuestionnaireCardProps {
     questionnaire: Questionnaire;
     onCardClick?: (questionnaire: Questionnaire) => void;
     onCloseQuestionnaire?: (questionnaire: Questionnaire) => void;
+    onViewResultsClick?: (questionnaire: Questionnaire) => void;
 }
 
-export const QuestionnaireCard: React.FC<QuestionnaireCardProps> = ({ questionnaire, onCardClick, onCloseQuestionnaire }: QuestionnaireCardProps) => {
+export const QuestionnaireCard: React.FC<QuestionnaireCardProps> = ({ questionnaire, onCardClick,
+                                                                        onCloseQuestionnaire, onViewResultsClick }: QuestionnaireCardProps) => {
     const classes = useStyles();
 
     return (
@@ -41,9 +43,17 @@ export const QuestionnaireCard: React.FC<QuestionnaireCardProps> = ({ questionna
             return event;
         }}>
             <CardContent>
-                <Typography gutterBottom variant="h5" component="h2">
-                    {questionnaire.name}
-                </Typography>
+                <div style={{ display: 'flex' }}>
+                    <Typography gutterBottom variant="h5" component="h2">
+                        {questionnaire.name}
+                    </Typography>
+                    {onViewResultsClick && <Button onClick={(event) => {
+                        event.stopPropagation();
+                        onViewResultsClick(questionnaire);
+                    }}>
+                        View Results
+                    </Button>}
+                </div>
                 {onCloseQuestionnaire &&
                     <Button onClick={(event) => {
                                  event.stopPropagation();

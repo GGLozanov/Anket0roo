@@ -48,21 +48,28 @@ class QuestionnaireService extends AuthInclusiveService {
         const authUsernameHeaderPair = this.getAuthUsernameAndHeaderFromContextToken(authContext);
 
         return axios.post(constants.apiURL + `questionnaires/${tokenUrl}/submit`, classToPlain(userAnswers),
-            { headers: authUsernameHeaderPair });
+            { headers: authUsernameHeaderPair.authHeader });
     }
 
     submitUserAnswersWithQuestionnaireId(authContext: AuthContextProps, questionnaireId: number, userAnswers: UserAnswerRequest[]): Promise<AxiosResponse> {
         const authUsernameHeaderPair = this.getAuthUsernameAndHeaderFromContextToken(authContext);
 
         return axios.post(constants.apiURL + `questionnaires/ping/${questionnaireId}/submit`, classToPlain(userAnswers),
-            { headers: authUsernameHeaderPair });
+            { headers: authUsernameHeaderPair.authHeader });
     }
 
     getUserAnswersWithTokenUrl(authContext: AuthContextProps, tokenUrl: string): Promise<AxiosResponse> {
         const authUsernameHeaderPair = this.getAuthUsernameAndHeaderFromContextToken(authContext);
 
         return axios.get(constants.apiURL + `questionnaires/admin/${tokenUrl}`,
-            { headers: authUsernameHeaderPair });
+            { headers: authUsernameHeaderPair.authHeader });
+    }
+    
+    getUsersAnswersWithQuestionnaireId(authContext: AuthContextProps, questionnaireId: number): Promise<AxiosResponse> {
+        const authUsernameHeaderPair = this.getAuthUsernameAndHeaderFromContextToken(authContext);
+
+        return axios.get(constants.apiURL + `users/${authUsernameHeaderPair.authUsername}/questionnaires/admin/${questionnaireId}`,
+            { headers: authUsernameHeaderPair.authHeader });
     }
 }
 

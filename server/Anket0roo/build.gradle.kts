@@ -28,6 +28,7 @@ dependencies {
 	implementation("javax.xml.bind:jaxb-api:2.4.0-b180830.0359")
 	implementation("com.h2database:h2")
 	implementation("commons-fileupload:commons-fileupload:1.4")
+	implementation("junit:junit:4.12")
 	runtimeOnly("mysql:mysql-connector-java")
 	implementation("javax.validation:validation-api:2.0.1.Final")
 	implementation("io.projectreactor.kotlin:reactor-kotlin-extensions")
@@ -35,7 +36,10 @@ dependencies {
 	implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
 	implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.0.1")
+	// test scope but w/e
 	implementation("org.springframework:spring-test")
+	implementation("org.seleniumhq.selenium:selenium-java:3.4.0")
+	implementation("org.mockito:mockito-core:2.21.0")
 	testImplementation("org.springframework.boot:spring-boot-starter-test") {
 		exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
 	}

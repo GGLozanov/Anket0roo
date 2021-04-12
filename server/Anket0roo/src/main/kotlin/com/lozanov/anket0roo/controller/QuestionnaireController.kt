@@ -1,6 +1,7 @@
 package com.lozanov.anket0roo.controller
 
 import com.lozanov.anket0roo.advice.Anket0rooResponseEntityExceptionHandler
+import com.lozanov.anket0roo.model.IpAnswer
 import com.lozanov.anket0roo.model.Questionnaire
 import com.lozanov.anket0roo.model.UserAnswer
 import com.lozanov.anket0roo.response.QuestionnaireCreateResponse
@@ -12,6 +13,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
 import java.net.URL
+import javax.servlet.http.HttpServletRequest
 import javax.validation.Valid
 
 @RestController
@@ -22,7 +24,8 @@ class QuestionnaireController(
     private val jwtTokenUtil: JwtTokenUtil,
     private val authenticationProvider: AuthenticationProvider,
     private val userService: UserService,
-    private val userAnswerService: UserAnswerService
+    private val userAnswerService: UserAnswerService,
+    private val ipAnswerService: IpAnswerService
 ) {
     @Value("\${client.url}")
     private val clientUrl: String? = null
@@ -88,14 +91,6 @@ class QuestionnaireController(
     @GetMapping(value = ["/questionnaires/{tokenUrl:.+}"])
     @ResponseBody
     fun getQuestionnaire(@PathVariable tokenUrl: String): ResponseEntity<*> {
-        fun sendResponseBasedOnQuestionnaireClosed(questionnaire: Questionnaire): ResponseEntity<*> {
-            return if(!questionnaire.closed) {
-                ResponseEntity.ok(questionnaire)
-            } else {
-                ResponseEntity.status(403).body(Response("Questionnaire has been closed to public access! Access forbidden!"))
-            }
-        }
-        
         return authenticationProvider.executeWithAuthAwareAndControllerContext({
             sendResponseBasedOnQuestionnaireClosed(
                     questionnaireService.getQuestionnaireById(jwtTokenUtil.getQuestionnaireIdFromToken(tokenUrl).toInt()))
@@ -118,6 +113,16 @@ class QuestionnaireController(
         )) })
     }
 
+    @GetMapping(value = ["/users/{username}/questionnaires/admin/{id}"])
+    @ResponseBody
+    fun getQuestionnaireAdmin(@PathVariable username: String, @PathVariable id: Int): ResponseEntity<*> {
+        if(questionnaireService.checkUserOwnership(userService.findUserIdByUsername(username), id)) {
+            return ResponseEntity.ok(extractQuestionnaireTokenClaimsAndRetrieveAnswersPerValidation(
+                    authenticationProvider.getAuthenticationWithValidation().name, java.lang.Integer(id)))
+        }
+        throw IllegalAccessException("Cannot access admin answers of questionnaire user does not own!")
+    }
+
     // slight request overhead but router components in react arguments go brr (yes, backend shouldn't be shaped by client but w/e)
     @GetMapping("/questionnaires/ping/{id}")
     @ResponseBody
@@ -127,16 +132,19 @@ class QuestionnaireController(
             throw IllegalAccessException("Cannot get questionnaire by id when the questionnaire is not public!")
         }
 
-        return ResponseEntity.ok(questionnaire)
+        return sendResponseBasedOnQuestionnaireClosed(questionnaire)
     }
 
     @PostMapping(value = ["/questionnaires/{tokenUrl:.+}/submit"])
     @ResponseBody
-    fun submitUserAnswers(@PathVariable tokenUrl: String, @RequestBody userAnswers: List<UserAnswer>): ResponseEntity<*> {
+    fun submitUserAnswers(@PathVariable tokenUrl: String,
+                          @RequestBody userAnswers: List<UserAnswer>, request: HttpServletRequest): ResponseEntity<*> {
+        validateCurrentRequestAddressForAnswerSubmit(request)
         val saveUserAnswersWithValidation = {
             val questionnaireId = jwtTokenUtil.getQuestionnaireIdFromToken(tokenUrl) // validate jwt
 
-            finishUserAnswersSubmitWithValidation(questionnaireId.toInt(), userAnswers)
+            finishUserAnswersSubmitWithValidation(questionnaireId.toInt(), userAnswers,
+                    request.remoteAddr + request.remoteHost)
         }
 
         // db excepions, like passing invalid IDin invalid ID mappings, are handled by response entity exceptions
@@ -147,20 +155,24 @@ class QuestionnaireController(
 
     @PostMapping(value = ["/questionnaires/ping/{id}/submit"])
     @ResponseBody
-    fun submitUserAnswers(@PathVariable id: Int, @Valid @RequestBody userAnswers: List<UserAnswer>): ResponseEntity<*> {
+    fun submitUserAnswers(@PathVariable id: Int,
+                          @Valid @RequestBody userAnswers: List<UserAnswer>, request: HttpServletRequest): ResponseEntity<*> {
+        validateCurrentRequestAddressForAnswerSubmit(request)
         if(!questionnaireService.getQuestionnaireById(id).public) {
             throw IllegalAccessException("Cannot submit answer for questionnaire by id when the questionnaire is not public!")
         }
 
-        return finishUserAnswersSubmitWithValidation(id, userAnswers)
+        return finishUserAnswersSubmitWithValidation(id, userAnswers, request.remoteAddr + request.remoteHost) // no port (doesn't matter)
     }
 
-    private fun finishUserAnswersSubmitWithValidation(questionnaireId: Int, userAnswers: List<UserAnswer>): ResponseEntity<*> {
+    private fun finishUserAnswersSubmitWithValidation(questionnaireId: Int, userAnswers: List<UserAnswer>, ip: String): ResponseEntity<*> {
         if(userAnswers.map { it.questionnaireId }.any { it != questionnaireId }) {
             throw Anket0rooResponseEntityExceptionHandler.InvalidFormatException("User answers cannot contain answers from more than one questionnaire")
         }
 
-        return ResponseEntity.ok(userAnswerService.saveUserAnswers(userAnswers))
+        val answers = userAnswerService.saveUserAnswers(userAnswers)
+        ipAnswerService.saveIpAnswer(IpAnswer(IpAnswer.IpAnswerId(questionnaireId, ip)))
+        return ResponseEntity.ok(answers)
     }
 
     @PutMapping(value = ["/users/{username}/questionnaires/{qId}/toggle_open"])
@@ -180,5 +192,20 @@ class QuestionnaireController(
         // if(auth.principal == username) {
            return userAnswerService.getUserAnswers(questionnaireId)
         // } else throw IllegalAccessException("Token for this URL does not match the authenticated user!")
+    }
+
+    private fun validateCurrentRequestAddressForAnswerSubmit(req: HttpServletRequest): Boolean {
+        if(ipAnswerService.validateIp(req.remoteAddr + req.remoteHost)) {
+            return true
+        }
+        throw IllegalAccessException("Cannot submit an answer to a questionnaire from the same IP again!")
+    }
+
+    private fun sendResponseBasedOnQuestionnaireClosed(questionnaire: Questionnaire): ResponseEntity<*> {
+        return if(!questionnaire.closed) {
+            ResponseEntity.ok(questionnaire)
+        } else {
+            ResponseEntity.status(403).body(Response("Questionnaire has been closed! Access forbidden!"))
+        }
     }
 }

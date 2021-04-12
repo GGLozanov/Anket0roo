@@ -139,6 +139,7 @@ export const Login: React.FC = () => {
                         type="submit"
                         fullWidth
                         variant="contained"
+                        id="submit"
                         color="primary"
                         className={classes.submit}
                     >

@@ -25,7 +25,6 @@ export const OwnQuestionnaires: React.FC = () => {
     const handleCardClick = (questionnaire: Questionnaire) => {
         // navigate to admin page ONLY with link
         // navigate to fill out form otherwise
-        // TODO: IP/cookie check or whatever
         navigate(`/questionnaires/fill/${questionnaire.id}`, { replace: true });
     }
 
@@ -41,13 +40,17 @@ export const OwnQuestionnaires: React.FC = () => {
         questionnaireService.toggleQuestionnaireClose(authContext, questionnaire.id)
             .catch((error) => {
                 console.log(error);
-                setCloseSnackbarMessage(`Questionnaire couldn't be ${!questionnaire.closed ? "Closed" : "Opened"}!`);
+                setCloseSnackbarMessage(`Questionnaire couldn't be ${questionnaire.closed ? "Closed" : "Opened"}!`);
                 setCloseSnackbarOpen(false);
             }).then((response) => {
                 userContext.toggleQuestionnaireClose(questionnaire.id, !questionnaire.closed);
-                setCloseSnackbarMessage(`Questionnaire ${!questionnaire.closed ? "Closed" : "Opened"}!`);
+                setCloseSnackbarMessage(`Questionnaire ${questionnaire.closed ? "Closed" : "Opened"}!`);
                 setCloseSnackbarOpen(true);
         });
+    }
+
+    const handleViewResultsClick = (questionnaire: Questionnaire) => {
+        navigate(`/questionnaires/admin/view/${questionnaire.id}`, { replace: true });
     }
 
     return (
@@ -56,7 +59,7 @@ export const OwnQuestionnaires: React.FC = () => {
                 {userContext.user?.questionnaires.map((questionnaire) =>
                     <GridListTile key={questionnaire.id}>
                         <QuestionnaireCard questionnaire={questionnaire} onCardClick={handleCardClick}
-                                           onCloseQuestionnaire={closeQuestionnaire} />
+                                           onCloseQuestionnaire={closeQuestionnaire} onViewResultsClick={handleViewResultsClick} />
                     </GridListTile>
                 ) ?? <Box/>}
             </GridList>

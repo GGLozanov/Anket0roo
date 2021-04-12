@@ -9,7 +9,6 @@ import javax.persistence.EntityNotFoundException
 @Service
 class QuestionnaireService(
     private val questionnaireRepository: QuestionnaireRepository,
-    private val questionnaireQuestionRepository: QuestionnaireQuestionRespository
 ) {
     fun getUserQuestionnaires(username: String): List<Questionnaire> =
             questionnaireRepository.findQuestionnaireByAuthorUsername(username) ?: listOf()
@@ -25,4 +24,7 @@ class QuestionnaireService(
     
     fun getQuestionnaireById(id: Int): Questionnaire =
             questionnaireRepository.findById(id).orElseThrow()
+    
+    fun checkUserOwnership(userId: Int, qId: Int): Boolean =
+            questionnaireRepository.countQuestionnairesByAuthorIdAndId(userId, qId) == 1
 }
