@@ -42,6 +42,8 @@ export const FillQuestionnaire: React.FC<FillQuestionnaireProps> = ({ questionna
     const [errorDialogOpen, setErrorDialogOpen] = useState(false);
 
     const onFormSubmit = () => {
+        console.log(`${JSON.stringify(questionnaire.questionnaireQuestions.filter((qq) =>
+            qq.mandatory && (!chosenAnswers?.has(qq.question.id) ?? false)))}`);
         if(questionnaire.questionnaireQuestions.filter((qq) =>
                 qq.mandatory && (!chosenAnswers?.has(qq.question.id) ?? false)).length > 0) {
             setNormalError("Mandatory questions not filled! Please fill them!");
@@ -100,7 +102,7 @@ export const FillQuestionnaire: React.FC<FillQuestionnaireProps> = ({ questionna
             } else newChosenAnswers.set(questionId, newAnswers);
         } else {
             newChosenAnswers.set(questionId, [...(newChosenAnswers.get(questionId) ?? []), answerId]);
-            console.log(`NEW chosen answers: ${JSON.stringify(newChosenAnswers.size)}`);
+            console.log(`NEW chosen answers: ${JSON.stringify(Array.from(newChosenAnswers))}`);
             setChosenAnswers(newChosenAnswers);
         }
     }
@@ -108,7 +110,7 @@ export const FillQuestionnaire: React.FC<FillQuestionnaireProps> = ({ questionna
     const handleRadioAnswerSelected = (questionId: number, answerId: number) => {
         let newChosenAnswers = new Map(chosenAnswers);
         newChosenAnswers.set(questionId, [answerId]);
-        console.log(`NEW chosen answers: ${JSON.stringify(newChosenAnswers.size)}`);
+        console.log(`NEW chosen answers: ${JSON.stringify(Array.from(newChosenAnswers))}`);
         setChosenAnswers(newChosenAnswers);
     }
 

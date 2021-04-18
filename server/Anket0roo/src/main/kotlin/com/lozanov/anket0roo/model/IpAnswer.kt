@@ -24,7 +24,9 @@ data class IpAnswer(
     data class IpAnswerId(
         @Column(name = "questionnaire_id")
         val questionnaireId: Int,
-        @Column(unique = true)
+        @Column
         val ip: String,
-    ): java.io.Serializable
+    ): java.io.Serializable {
+        override fun equals(other: Any?): Boolean = other is IpAnswerId && this.questionnaireId == other.questionnaireId
+    }
 }

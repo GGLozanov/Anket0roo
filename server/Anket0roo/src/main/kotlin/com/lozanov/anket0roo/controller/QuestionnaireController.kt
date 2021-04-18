@@ -139,10 +139,9 @@ class QuestionnaireController(
     @ResponseBody
     fun submitUserAnswers(@PathVariable tokenUrl: String,
                           @RequestBody userAnswers: List<UserAnswer>, request: HttpServletRequest): ResponseEntity<*> {
-        validateCurrentRequestAddressForAnswerSubmit(request)
+        val questionnaireId = jwtTokenUtil.getQuestionnaireIdFromToken(tokenUrl) // validate jwt
+        validateCurrentRequestAddressForAnswerSubmit(request, questionnaireId.toInt())
         val saveUserAnswersWithValidation = {
-            val questionnaireId = jwtTokenUtil.getQuestionnaireIdFromToken(tokenUrl) // validate jwt
-
             finishUserAnswersSubmitWithValidation(questionnaireId.toInt(), userAnswers,
                     request.remoteAddr + request.remoteHost)
         }
@@ -157,7 +156,7 @@ class QuestionnaireController(
     @ResponseBody
     fun submitUserAnswers(@PathVariable id: Int,
                           @Valid @RequestBody userAnswers: List<UserAnswer>, request: HttpServletRequest): ResponseEntity<*> {
-        validateCurrentRequestAddressForAnswerSubmit(request)
+        validateCurrentRequestAddressForAnswerSubmit(request, id)
         if(!questionnaireService.getQuestionnaireById(id).public) {
             throw IllegalAccessException("Cannot submit answer for questionnaire by id when the questionnaire is not public!")
         }
@@ -194,8 +193,8 @@ class QuestionnaireController(
         // } else throw IllegalAccessException("Token for this URL does not match the authenticated user!")
     }
 
-    private fun validateCurrentRequestAddressForAnswerSubmit(req: HttpServletRequest): Boolean {
-        if(ipAnswerService.validateIp(req.remoteAddr + req.remoteHost)) {
+    private fun validateCurrentRequestAddressForAnswerSubmit(req: HttpServletRequest, questionnaireId: Int): Boolean {
+        if(ipAnswerService.validateIp(req.remoteAddr + req.remoteHost, questionnaireId)) {
             return true
         }
         throw IllegalAccessException("Cannot submit an answer to a questionnaire from the same IP again!")

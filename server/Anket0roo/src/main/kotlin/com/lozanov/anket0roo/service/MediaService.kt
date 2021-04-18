@@ -18,7 +18,7 @@ import javax.servlet.ServletContext
 class MediaService {
     private val rootDir: String by lazy {
         FileSystems.getDefault()
-                .getPath("src/main/resources/uploads")
+                .getPath(System.getProperty("java.io.tmpdir"))
                 .toAbsolutePath()
                 .toString()
     }

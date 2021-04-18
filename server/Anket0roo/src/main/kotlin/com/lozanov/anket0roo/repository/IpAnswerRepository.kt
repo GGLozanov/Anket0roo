@@ -7,5 +7,5 @@ import org.springframework.stereotype.Repository
 
 @Repository
 interface IpAnswerRepository : CrudRepository<IpAnswer, Int> {
-    fun countByIpAnswerId_Ip(ip: String): Int
+    fun countByIpAnswerId_IpAndIpAnswerId_QuestionnaireId(ip: String, questionnaireId: Int): Int
 }
