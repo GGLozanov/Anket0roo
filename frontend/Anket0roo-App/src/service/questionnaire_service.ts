@@ -33,9 +33,7 @@ class QuestionnaireService extends AuthInclusiveService {
     }
 
     getQuestionnaireForTokenUrl(authContext: AuthContextProps, tokenUrl: string): Promise<AxiosResponse> {
-        const authUsernameHeaderPair = this.getAuthUsernameAndHeaderFromContextToken(authContext);
-
-        return axios.get(constants.apiURL + `questionnaires/${tokenUrl}`, { headers: authUsernameHeaderPair.authHeader });
+        return axios.get(constants.apiURL + `questionnaires/${tokenUrl}`);
     }
 
     getQuestionnaireForId(authContext: AuthContextProps, id: number): Promise<AxiosResponse> {
@@ -45,10 +43,7 @@ class QuestionnaireService extends AuthInclusiveService {
     }
 
     submitUserAnswersWithTokenUrl(authContext: AuthContextProps, tokenUrl: string, userAnswers: UserAnswerRequest[]): Promise<AxiosResponse> {
-        const authUsernameHeaderPair = this.getAuthUsernameAndHeaderFromContextToken(authContext);
-
-        return axios.post(constants.apiURL + `questionnaires/${tokenUrl}/submit`, classToPlain(userAnswers),
-            { headers: authUsernameHeaderPair.authHeader });
+        return axios.post(constants.apiURL + `questionnaires/${tokenUrl}/submit`, classToPlain(userAnswers));
     }
 
     submitUserAnswersWithQuestionnaireId(authContext: AuthContextProps, questionnaireId: number, userAnswers: UserAnswerRequest[]): Promise<AxiosResponse> {

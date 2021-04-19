@@ -13,7 +13,7 @@ class SeleniumAuthenticationPage {
 
     init {
         config = SeleniumConfig()
-        config.webDriver.get(clientUrl + "/login")
+        config.webDriver.get("$clientUrl/login")
     }
 
     fun closeWindow() {
